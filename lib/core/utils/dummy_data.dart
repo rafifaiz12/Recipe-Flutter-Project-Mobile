@@ -9,36 +9,12 @@ class DummyData {
   };
 
   static const List<Map<String, dynamic>> categories = [
-    {
-      'id': 'cat_001',
-      'name': 'All',
-      'icon': 'apps',
-    },
-    {
-      'id': 'cat_002',
-      'name': 'Breakfast',
-      'icon': 'free_breakfast',
-    },
-    {
-      'id': 'cat_003',
-      'name': 'Lunch',
-      'icon': 'lunch_dining',
-    },
-    {
-      'id': 'cat_004',
-      'name': 'Dinner',
-      'icon': 'dinner_dining',
-    },
-    {
-      'id': 'cat_005',
-      'name': 'Dessert',
-      'icon': 'icecream',
-    },
-    {
-      'id': 'cat_006',
-      'name': 'Healthy',
-      'icon': 'eco',
-    },
+    {'id': 'cat_001', 'name': 'All', 'icon': 'apps'},
+    {'id': 'cat_002', 'name': 'Breakfast', 'icon': 'free_breakfast'},
+    {'id': 'cat_003', 'name': 'Lunch', 'icon': 'lunch_dining'},
+    {'id': 'cat_004', 'name': 'Dinner', 'icon': 'dinner_dining'},
+    {'id': 'cat_005', 'name': 'Dessert', 'icon': 'icecream'},
+    {'id': 'cat_006', 'name': 'Healthy', 'icon': 'eco'},
   ];
 
   static const List<Map<String, dynamic>> recipes = [
@@ -46,11 +22,12 @@ class DummyData {
       'id': 'recipe_001',
       'title': 'Creamy Pasta Carbonara',
       'description':
-      'Pasta creamy klasik dengan telur, parmesan, dan bacon yang gurih.',
+          'Pasta creamy klasik dengan telur, parmesan, dan bacon yang gurih.',
       'imageUrl':
-      'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?q=80&w=1200&auto=format&fit=crop',
       'categoryId': 'cat_004',
       'categoryName': 'Dinner',
+      'cuisine': 'Western',
       'cookTimeMinutes': 25,
       'difficulty': 'Easy',
       'ratingAverage': 4.8,
@@ -59,31 +36,11 @@ class DummyData {
       'calories': 540,
       'isTrending': true,
       'ingredients': [
-        {
-          'name': 'Spaghetti',
-          'quantity': 200.0,
-          'unit': 'g',
-        },
-        {
-          'name': 'Eggs',
-          'quantity': 2.0,
-          'unit': 'pcs',
-        },
-        {
-          'name': 'Parmesan cheese',
-          'quantity': 50.0,
-          'unit': 'g',
-        },
-        {
-          'name': 'Bacon',
-          'quantity': 100.0,
-          'unit': 'g',
-        },
-        {
-          'name': 'Black pepper',
-          'quantity': 0.5,
-          'unit': 'tsp',
-        },
+        {'name': 'Spaghetti', 'quantity': 200.0, 'unit': 'g'},
+        {'name': 'Eggs', 'quantity': 2.0, 'unit': 'pcs'},
+        {'name': 'Parmesan cheese', 'quantity': 50.0, 'unit': 'g'},
+        {'name': 'Bacon', 'quantity': 100.0, 'unit': 'g'},
+        {'name': 'Black pepper', 'quantity': 0.5, 'unit': 'tsp'},
       ],
       'instructions': [
         'Cook spaghetti in salted boiling water until al dente.',
@@ -97,11 +54,12 @@ class DummyData {
       'id': 'recipe_002',
       'title': 'Grilled Salmon with Herbs',
       'description':
-      'Salmon panggang dengan aroma lemon dan herbs segar, cocok untuk makan malam sehat.',
+          'Salmon panggang dengan aroma lemon dan herbs segar, cocok untuk makan malam sehat.',
       'imageUrl':
-      'https://images.unsplash.com/photo-1467003909585-2f8a72700288?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1467003909585-2f8a72700288?q=80&w=1200&auto=format&fit=crop',
       'categoryId': 'cat_004',
       'categoryName': 'Dinner',
+      'cuisine': 'Western',
       'cookTimeMinutes': 30,
       'difficulty': 'Medium',
       'ratingAverage': 4.9,
@@ -110,31 +68,11 @@ class DummyData {
       'calories': 420,
       'isTrending': true,
       'ingredients': [
-        {
-          'name': 'Salmon fillet',
-          'quantity': 2.0,
-          'unit': 'pcs',
-        },
-        {
-          'name': 'Lemon',
-          'quantity': 1.0,
-          'unit': 'pcs',
-        },
-        {
-          'name': 'Olive oil',
-          'quantity': 2.0,
-          'unit': 'tbsp',
-        },
-        {
-          'name': 'Parsley',
-          'quantity': 1.0,
-          'unit': 'tbsp',
-        },
-        {
-          'name': 'Salt',
-          'quantity': 0.5,
-          'unit': 'tsp',
-        },
+        {'name': 'Salmon fillet', 'quantity': 2.0, 'unit': 'pcs'},
+        {'name': 'Lemon', 'quantity': 1.0, 'unit': 'pcs'},
+        {'name': 'Olive oil', 'quantity': 2.0, 'unit': 'tbsp'},
+        {'name': 'Parsley', 'quantity': 1.0, 'unit': 'tbsp'},
+        {'name': 'Salt', 'quantity': 0.5, 'unit': 'tsp'},
       ],
       'instructions': [
         'Season salmon with salt, olive oil, and herbs.',
@@ -148,11 +86,12 @@ class DummyData {
       'id': 'recipe_003',
       'title': 'Mediterranean Bowl',
       'description':
-      'Mangkuk sehat berisi sayuran segar, protein, dan saus ringan ala Mediterania.',
+          'Mangkuk sehat berisi sayuran segar, protein, dan saus ringan ala Mediterania.',
       'imageUrl':
-      'https://images.unsplash.com/photo-1547592180-85f173990554?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1547592180-85f173990554?q=80&w=1200&auto=format&fit=crop',
       'categoryId': 'cat_003',
       'categoryName': 'Lunch',
+      'cuisine': 'Asian',
       'cookTimeMinutes': 20,
       'difficulty': 'Easy',
       'ratingAverage': 4.7,
@@ -161,31 +100,11 @@ class DummyData {
       'calories': 380,
       'isTrending': false,
       'ingredients': [
-        {
-          'name': 'Lettuce',
-          'quantity': 100.0,
-          'unit': 'g',
-        },
-        {
-          'name': 'Cherry tomatoes',
-          'quantity': 8.0,
-          'unit': 'pcs',
-        },
-        {
-          'name': 'Cucumber',
-          'quantity': 0.5,
-          'unit': 'pcs',
-        },
-        {
-          'name': 'Chickpeas',
-          'quantity': 100.0,
-          'unit': 'g',
-        },
-        {
-          'name': 'Feta cheese',
-          'quantity': 40.0,
-          'unit': 'g',
-        },
+        {'name': 'Lettuce', 'quantity': 100.0, 'unit': 'g'},
+        {'name': 'Cherry tomatoes', 'quantity': 8.0, 'unit': 'pcs'},
+        {'name': 'Cucumber', 'quantity': 0.5, 'unit': 'pcs'},
+        {'name': 'Chickpeas', 'quantity': 100.0, 'unit': 'g'},
+        {'name': 'Feta cheese', 'quantity': 40.0, 'unit': 'g'},
       ],
       'instructions': [
         'Wash and prepare all vegetables.',
@@ -199,11 +118,12 @@ class DummyData {
       'id': 'recipe_004',
       'title': 'Banana Pancakes',
       'description':
-      'Pancake lembut dengan rasa pisang alami, cocok untuk sarapan cepat.',
+          'Pancake lembut dengan rasa pisang alami, cocok untuk sarapan cepat.',
       'imageUrl':
-      'https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=1200&auto=format&fit=crop',
       'categoryId': 'cat_002',
       'categoryName': 'Breakfast',
+      'cuisine': 'Western',
       'cookTimeMinutes': 15,
       'difficulty': 'Easy',
       'ratingAverage': 4.6,
@@ -212,26 +132,10 @@ class DummyData {
       'calories': 300,
       'isTrending': false,
       'ingredients': [
-        {
-          'name': 'Banana',
-          'quantity': 2.0,
-          'unit': 'pcs',
-        },
-        {
-          'name': 'Eggs',
-          'quantity': 2.0,
-          'unit': 'pcs',
-        },
-        {
-          'name': 'Flour',
-          'quantity': 120.0,
-          'unit': 'g',
-        },
-        {
-          'name': 'Milk',
-          'quantity': 150.0,
-          'unit': 'ml',
-        },
+        {'name': 'Banana', 'quantity': 2.0, 'unit': 'pcs'},
+        {'name': 'Eggs', 'quantity': 2.0, 'unit': 'pcs'},
+        {'name': 'Flour', 'quantity': 120.0, 'unit': 'g'},
+        {'name': 'Milk', 'quantity': 150.0, 'unit': 'ml'},
       ],
       'instructions': [
         'Mash bananas in a bowl.',
@@ -245,11 +149,12 @@ class DummyData {
       'id': 'recipe_005',
       'title': 'Avocado Toast',
       'description':
-      'Roti panggang renyah dengan alpukat lembut dan topping sederhana.',
+          'Roti panggang renyah dengan alpukat lembut dan topping sederhana.',
       'imageUrl':
-      'https://images.unsplash.com/photo-1525351484163-7529414344d8?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1525351484163-7529414344d8?q=80&w=1200&auto=format&fit=crop',
       'categoryId': 'cat_002',
       'categoryName': 'Breakfast',
+      'cuisine': 'Asian',
       'cookTimeMinutes': 10,
       'difficulty': 'Easy',
       'ratingAverage': 4.5,
@@ -258,26 +163,10 @@ class DummyData {
       'calories': 250,
       'isTrending': true,
       'ingredients': [
-        {
-          'name': 'Bread',
-          'quantity': 2.0,
-          'unit': 'slices',
-        },
-        {
-          'name': 'Avocado',
-          'quantity': 1.0,
-          'unit': 'pcs',
-        },
-        {
-          'name': 'Salt',
-          'quantity': 0.25,
-          'unit': 'tsp',
-        },
-        {
-          'name': 'Chili flakes',
-          'quantity': 0.25,
-          'unit': 'tsp',
-        },
+        {'name': 'Bread', 'quantity': 2.0, 'unit': 'slices'},
+        {'name': 'Avocado', 'quantity': 1.0, 'unit': 'pcs'},
+        {'name': 'Salt', 'quantity': 0.25, 'unit': 'tsp'},
+        {'name': 'Chili flakes', 'quantity': 0.25, 'unit': 'tsp'},
       ],
       'instructions': [
         'Toast bread until crisp.',
@@ -323,10 +212,7 @@ class DummyData {
     },
   ];
 
-  static final List<String> favoriteRecipeIds = [
-    'recipe_001',
-    'recipe_003',
-  ];
+  static final List<String> favoriteRecipeIds = ['recipe_001', 'recipe_003'];
 
   static final List<Map<String, dynamic>> mealPlans = [
     {
@@ -390,7 +276,9 @@ class DummyData {
   }
 
   static List<Map<String, dynamic>> get lunchRecipes {
-    return recipes.where((recipe) => recipe['categoryName'] == 'Lunch').toList();
+    return recipes
+        .where((recipe) => recipe['categoryName'] == 'Lunch')
+        .toList();
   }
 
   static List<Map<String, dynamic>> get dinnerRecipes {
@@ -421,10 +309,53 @@ class DummyData {
     return mealPlans.where((meal) => meal['day'] == day).toList();
   }
 
+  static Map<String, dynamic>? mealPlanByDayAndType(
+    String day,
+    String mealType,
+  ) {
+    try {
+      return mealPlans.firstWhere(
+        (meal) => meal['day'] == day && meal['mealType'] == mealType,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static void upsertMealPlan({
+    required String day,
+    required String mealType,
+    required String recipeId,
+  }) {
+    final int index = mealPlans.indexWhere(
+      (meal) => meal['day'] == day && meal['mealType'] == mealType,
+    );
+
+    final Map<String, dynamic> newItem = {
+      'id': index == -1
+          ? 'meal_${DateTime.now().microsecondsSinceEpoch}'
+          : mealPlans[index]['id'],
+      'day': day,
+      'mealType': mealType,
+      'recipeId': recipeId,
+    };
+
+    if (index == -1) {
+      mealPlans.add(newItem);
+      return;
+    }
+
+    mealPlans[index] = newItem;
+  }
+
+  static void removeMealPlan({required String day, required String mealType}) {
+    mealPlans.removeWhere(
+      (meal) => meal['day'] == day && meal['mealType'] == mealType,
+    );
+  }
+
   static List<Map<String, dynamic>> shoppingItemsByCategory(String category) {
-    return shoppingItems
-        .where((item) => item['category'] == category)
-        .toList();
+    return shoppingItems.where((item) => item['category'] == category).toList();
   }
 
   static List<String> get shoppingCategories {
@@ -505,15 +436,16 @@ class DummyData {
     final bool isManual = item['isManual'] as bool? ?? false;
 
     final int existingIndex = shoppingItems.indexWhere(
-          (existing) =>
-      (existing['name'] as String).toLowerCase() == name.toLowerCase() &&
+      (existing) =>
+          (existing['name'] as String).toLowerCase() == name.toLowerCase() &&
           existing['unit'] == unit &&
           existing['category'] == category,
     );
 
     if (existingIndex == -1) {
       shoppingItems.add({
-        'id': item['id']?.toString() ??
+        'id':
+            item['id']?.toString() ??
             DateTime.now().microsecondsSinceEpoch.toString(),
         'name': name,
         'quantity': quantity,
@@ -526,11 +458,13 @@ class DummyData {
     }
 
     final double currentQty =
-        double.tryParse(shoppingItems[existingIndex]['quantity'].toString()) ?? 0;
+        double.tryParse(shoppingItems[existingIndex]['quantity'].toString()) ??
+        0;
     final double incomingQty = double.tryParse(quantity) ?? 0;
 
-    shoppingItems[existingIndex]['quantity'] =
-        formatQuantity(currentQty + incomingQty);
+    shoppingItems[existingIndex]['quantity'] = formatQuantity(
+      currentQty + incomingQty,
+    );
     shoppingItems[existingIndex]['isChecked'] =
         (shoppingItems[existingIndex]['isChecked'] as bool) || isChecked;
   }
@@ -547,7 +481,7 @@ class DummyData {
     }
 
     shoppingItems[index]['isChecked'] =
-    !(shoppingItems[index]['isChecked'] as bool);
+        !(shoppingItems[index]['isChecked'] as bool);
   }
 
   static void addRecipeIngredientsToShoppingList({
@@ -555,9 +489,8 @@ class DummyData {
     required int selectedServings,
   }) {
     final int baseServings = (recipe['servings'] as int?) ?? 1;
-    final List<Map<String, dynamic>> ingredients = List<Map<String, dynamic>>.from(
-      recipe['ingredients'] as List,
-    );
+    final List<Map<String, dynamic>> ingredients =
+        List<Map<String, dynamic>>.from(recipe['ingredients'] as List);
 
     for (final ingredient in ingredients) {
       final String name = ingredient['name'] as String? ?? '';
@@ -578,10 +511,12 @@ class DummyData {
     }
   }
 
-  static void generateShoppingItemsFromMealPlans() {
+  static void generateShoppingItemsFromMealPlans({required String day}) {
     clearShoppingItems();
 
-    for (final meal in mealPlans) {
+    final List<Map<String, dynamic>> selectedMeals = mealPlansByDay(day);
+
+    for (final meal in selectedMeals) {
       final String? recipeId = meal['recipeId'] as String?;
       if (recipeId == null) {
         continue;

@@ -78,22 +78,20 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => const ShoppingListPage(),
-      ),
+      MaterialPageRoute(builder: (_) => const ShoppingListPage()),
     );
   }
 
   Future<void> _openWriteReviewModal() async {
     final Map<String, dynamic>? result =
-    await showModalBottomSheet<Map<String, dynamic>>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return AddReviewPage(recipeTitle: _recipe['title'] as String);
-      },
-    );
+        await showModalBottomSheet<Map<String, dynamic>>(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) {
+            return AddReviewPage(recipeTitle: _recipe['title'] as String);
+          },
+        );
 
     if (result == null) {
       return;
@@ -186,9 +184,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
     final String rating = _recipe['ratingAverage'].toString();
     final int reviewCount = _reviews.length;
     final List<Map<String, dynamic>> ingredients =
-    List<Map<String, dynamic>>.from(
-      _recipe['ingredients'] as List,
-    );
+        List<Map<String, dynamic>>.from(_recipe['ingredients'] as List);
     final List<String> instructions = List<String>.from(
       _recipe['instructions'] as List,
     );
@@ -310,12 +306,7 @@ class _RecipeHeroSection extends StatelessWidget {
       width: double.infinity,
       child: Stack(
         children: [
-          Positioned.fill(
-            child: Image.network(
-              imageUrl,
-              fit: BoxFit.cover,
-            ),
-          ),
+          Positioned.fill(child: Image.network(imageUrl, fit: BoxFit.cover)),
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -555,10 +546,7 @@ class _IngredientsSection extends StatelessWidget {
                 ),
               ),
               if (index != ingredients.length - 1)
-                const Divider(
-                  height: 1,
-                  color: AppColors.border,
-                ),
+                const Divider(height: 1, color: AppColors.border),
             ],
           );
         }),
@@ -570,9 +558,7 @@ class _IngredientsSection extends StatelessWidget {
 class _InstructionsSection extends StatelessWidget {
   final List<String> instructions;
 
-  const _InstructionsSection({
-    required this.instructions,
-  });
+  const _InstructionsSection({required this.instructions});
 
   @override
   Widget build(BuildContext context) {
@@ -732,10 +718,7 @@ class _ReviewsSection extends StatelessWidget {
                 ),
               ),
               if (index != reviews.length - 1)
-                const Divider(
-                  height: 1,
-                  color: AppColors.border,
-                ),
+                const Divider(height: 1, color: AppColors.border),
               if (index != reviews.length - 1)
                 const SizedBox(height: AppSizes.spaceL),
             ],
