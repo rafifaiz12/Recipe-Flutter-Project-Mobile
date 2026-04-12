@@ -64,30 +64,16 @@ class ShoppingListItemTile extends StatelessWidget {
           ),
           const SizedBox(width: AppSizes.spaceM),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: AppTextStyles.body.copyWith(
-                    decoration: isChecked
-                        ? TextDecoration.lineThrough
-                        : TextDecoration.none,
-                    color: isChecked
-                        ? AppColors.textSecondary
-                        : AppColors.textPrimary,
-                  ),
-                ),
-                if (isManual) ...[
-                  const SizedBox(height: AppSizes.spaceXS),
-                  Text(
-                    'Manual item',
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ],
-              ],
+            child: Text(
+              name,
+              style: AppTextStyles.body.copyWith(
+                decoration: isChecked
+                    ? TextDecoration.lineThrough
+                    : TextDecoration.none,
+                color: isChecked
+                    ? AppColors.textSecondary
+                    : AppColors.textPrimary,
+              ),
             ),
           ),
           const SizedBox(width: AppSizes.spaceS),
@@ -97,17 +83,15 @@ class ShoppingListItemTile extends StatelessWidget {
               color: AppColors.textSecondary,
             ),
           ),
-          if (isChecked) ...[
-            const SizedBox(width: AppSizes.spaceS),
-            GestureDetector(
-              onTap: () => onDeleteTap(id),
-              child: const Icon(
-                Icons.delete_outline,
-                color: AppColors.error,
-                size: AppSizes.iconM,
-              ),
+          const SizedBox(width: AppSizes.spaceS),
+          GestureDetector(
+            onTap: () => onDeleteTap(id),
+            child: const Icon(
+              Icons.delete_outline,
+              color: AppColors.error,
+              size: AppSizes.iconM,
             ),
-          ],
+          ),
         ],
       ),
     );

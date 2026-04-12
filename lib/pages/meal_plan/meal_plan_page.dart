@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:siresep/core/constants/app_colors.dart';
 import 'package:siresep/core/constants/app_sizes.dart';
 import 'package:siresep/core/constants/app_text_styles.dart';
+import 'package:siresep/core/utils/dummy_data.dart';
 import 'package:siresep/pages/meal_plan/widgets/day_selector_chip.dart';
 import 'package:siresep/pages/meal_plan/widgets/empty_meal_card.dart';
 import 'package:siresep/pages/meal_plan/widgets/meal_recipe_card.dart';
@@ -20,89 +21,30 @@ class _MealPlanPageState extends State<MealPlanPage> {
 
   final List<String> _days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
-  final List<Map<String, dynamic>> _weeklyPlans = [
-    {
-      'day': 'Mon',
-      'subtitle': 'Plan your weekly meals',
-      'breakfast': null,
-      'lunch': {
-        'title': 'Mediterranean Bowl',
-        'duration': '20 min',
-        'portion': '2 porsi',
-        'image':
-        'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1200&q=80',
-      },
-      'dinner': {
-        'title': 'Creamy Pasta Carbonara',
-        'duration': '25 min',
-        'portion': '2 porsi',
-        'image':
-        'https://images.unsplash.com/photo-1516100882582-96c3a05fe590?auto=format&fit=crop&w=1200&q=80',
-      },
-    },
-    {
-      'day': 'Tue',
-      'subtitle': 'Plan your weekly meals',
-      'breakfast': {
-        'title': 'Avocado Toast',
-        'duration': '10 min',
-        'portion': '1 porsi',
-        'image':
-        'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=1200&q=80',
-      },
-      'lunch': null,
-      'dinner': {
-        'title': 'Grilled Chicken Salad',
-        'duration': '18 min',
-        'portion': '2 porsi',
-        'image':
-        'https://images.unsplash.com/photo-1546793665-c74683f339c1?auto=format&fit=crop&w=1200&q=80',
-      },
-    },
-    {
-      'day': 'Wed',
-      'subtitle': 'Plan your weekly meals',
-      'breakfast': null,
-      'lunch': {
-        'title': 'Chicken Katsu Bowl',
-        'duration': '30 min',
-        'portion': '2 porsi',
-        'image':
-        'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=1200&q=80',
-      },
-      'dinner': null,
-    },
-    {
-      'day': 'Thu',
-      'subtitle': 'Plan your weekly meals',
-      'breakfast': {
-        'title': 'Fruit Yogurt Bowl',
-        'duration': '8 min',
-        'portion': '1 porsi',
-        'image':
-        'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=1200&q=80',
-      },
-      'lunch': null,
-      'dinner': null,
-    },
-    {
-      'day': 'Fri',
-      'subtitle': 'Plan your weekly meals',
-      'breakfast': null,
-      'lunch': null,
-      'dinner': {
-        'title': 'Salmon Teriyaki',
-        'duration': '22 min',
-        'portion': '2 porsi',
-        'image':
-        'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=1200&q=80',
-      },
-    },
-  ];
+  Map<String, dynamic>? _recipeFromMeal(String day, String mealType) {
+    final List<Map<String, dynamic>> meals = DummyData.mealPlans
+        .where(
+          (meal) => meal['day'] == day && meal['mealType'] == mealType,
+    )
+        .toList();
 
-  Map<String, dynamic> get _selectedPlan => _weeklyPlans[_selectedDayIndex];
+    if (meals.isEmpty) {
+      return null;
+    }
+
+    final String? recipeId = meals.first['recipeId'] as String?;
+    if (recipeId == null) {
+      return null;
+    }
+
+    return DummyData.recipeById(recipeId);
+  }
 
   void _openShoppingListPage() {
+    setState(() {
+      DummyData.generateShoppingItemsFromMealPlans();
+    });
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -113,12 +55,12 @@ class _MealPlanPageState extends State<MealPlanPage> {
 
   @override
   Widget build(BuildContext context) {
+    final String selectedDay = _days[_selectedDayIndex];
+
     final Map<String, dynamic>? breakfast =
-    _selectedPlan['breakfast'] as Map<String, dynamic>?;
-    final Map<String, dynamic>? lunch =
-    _selectedPlan['lunch'] as Map<String, dynamic>?;
-    final Map<String, dynamic>? dinner =
-    _selectedPlan['dinner'] as Map<String, dynamic>?;
+    _recipeFromMeal(selectedDay, 'Breakfast');
+    final Map<String, dynamic>? lunch = _recipeFromMeal(selectedDay, 'Lunch');
+    final Map<String, dynamic>? dinner = _recipeFromMeal(selectedDay, 'Dinner');
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -134,7 +76,7 @@ class _MealPlanPageState extends State<MealPlanPage> {
               ),
               const SizedBox(height: AppSizes.spaceS),
               Text(
-                _selectedPlan['subtitle'] as String,
+                'Plan your weekly meals',
                 style: AppTextStyles.bodySecondary.copyWith(fontSize: 18),
               ),
               const SizedBox(height: AppSizes.spaceL),
@@ -167,9 +109,9 @@ class _MealPlanPageState extends State<MealPlanPage> {
                 )
                     : MealRecipeCard(
                   title: breakfast['title'] as String,
-                  imageUrl: breakfast['image'] as String,
+                  imageUrl: breakfast['imageUrl'] as String,
                   subtitle:
-                  '${breakfast['portion']} • ${breakfast['duration']}',
+                  '${breakfast['servings']} porsi • ${breakfast['cookTimeMinutes']} min',
                 ),
               ),
               const SizedBox(height: AppSizes.spaceXL),
@@ -181,9 +123,9 @@ class _MealPlanPageState extends State<MealPlanPage> {
                 )
                     : MealRecipeCard(
                   title: lunch['title'] as String,
-                  imageUrl: lunch['image'] as String,
+                  imageUrl: lunch['imageUrl'] as String,
                   subtitle:
-                  '${lunch['portion']} • ${lunch['duration']}',
+                  '${lunch['servings']} porsi • ${lunch['cookTimeMinutes']} min',
                 ),
               ),
               const SizedBox(height: AppSizes.spaceXL),
@@ -195,9 +137,9 @@ class _MealPlanPageState extends State<MealPlanPage> {
                 )
                     : MealRecipeCard(
                   title: dinner['title'] as String,
-                  imageUrl: dinner['image'] as String,
+                  imageUrl: dinner['imageUrl'] as String,
                   subtitle:
-                  '${dinner['portion']} • ${dinner['duration']}',
+                  '${dinner['servings']} porsi • ${dinner['cookTimeMinutes']} min',
                 ),
               ),
               const SizedBox(height: AppSizes.spaceXL),

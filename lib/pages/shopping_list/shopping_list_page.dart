@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:siresep/core/constants/app_colors.dart';
 import 'package:siresep/core/constants/app_sizes.dart';
 import 'package:siresep/core/constants/app_text_styles.dart';
+import 'package:siresep/core/utils/dummy_data.dart';
+import 'package:siresep/core/widgets/empty_state_widget.dart';
 import 'package:siresep/pages/shopping_list/add_manual_item_page.dart';
 import 'package:siresep/pages/shopping_list/widgets/add_manual_item_card.dart';
 import 'package:siresep/pages/shopping_list/widgets/shopping_list_section.dart';
@@ -14,80 +16,7 @@ class ShoppingListPage extends StatefulWidget {
 }
 
 class _ShoppingListPageState extends State<ShoppingListPage> {
-  final List<Map<String, dynamic>> _shoppingItems = [
-    {
-      'id': '1',
-      'name': 'Spaghetti',
-      'quantity': '400',
-      'unit': 'g',
-      'category': 'Pasta & Grains',
-      'isChecked': false,
-      'isManual': false,
-    },
-    {
-      'id': '2',
-      'name': 'Eggs',
-      'quantity': '4',
-      'unit': 'pcs',
-      'category': 'Dairy & Eggs',
-      'isChecked': false,
-      'isManual': false,
-    },
-    {
-      'id': '3',
-      'name': 'Parmesan cheese',
-      'quantity': '100',
-      'unit': 'g',
-      'category': 'Dairy & Eggs',
-      'isChecked': true,
-      'isManual': false,
-    },
-    {
-      'id': '4',
-      'name': 'Greek yogurt',
-      'quantity': '500',
-      'unit': 'g',
-      'category': 'Dairy & Eggs',
-      'isChecked': true,
-      'isManual': false,
-    },
-    {
-      'id': '5',
-      'name': 'Bacon',
-      'quantity': '200',
-      'unit': 'g',
-      'category': 'Meat & Fish',
-      'isChecked': false,
-      'isManual': false,
-    },
-    {
-      'id': '6',
-      'name': 'Salmon fillet',
-      'quantity': '2',
-      'unit': 'pcs',
-      'category': 'Meat & Fish',
-      'isChecked': false,
-      'isManual': false,
-    },
-    {
-      'id': '7',
-      'name': 'Strawberries',
-      'quantity': '250',
-      'unit': 'g',
-      'category': 'Fruits & Vegetables',
-      'isChecked': false,
-      'isManual': false,
-    },
-    {
-      'id': '8',
-      'name': 'Milk',
-      'quantity': '1',
-      'unit': 'L',
-      'category': 'Dairy & Eggs',
-      'isChecked': false,
-      'isManual': false,
-    },
-  ];
+  List<Map<String, dynamic>> get _shoppingItems => DummyData.shoppingItemsSnapshot;
 
   int get _checkedItemsCount =>
       _shoppingItems.where((item) => item['isChecked'] == true).length;
@@ -118,20 +47,13 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
 
   void _toggleItem(String id) {
     setState(() {
-      final int index = _shoppingItems.indexWhere((item) => item['id'] == id);
-
-      if (index == -1) {
-        return;
-      }
-
-      _shoppingItems[index]['isChecked'] =
-      !(_shoppingItems[index]['isChecked'] as bool);
+      DummyData.toggleShoppingItem(id);
     });
   }
 
   void _deleteItem(String id) {
     setState(() {
-      _shoppingItems.removeWhere((item) => item['id'] == id);
+      DummyData.removeShoppingItem(id);
     });
   }
 
@@ -149,20 +71,19 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
     }
 
     setState(() {
-      _shoppingItems.add({
-        'id': DateTime.now().microsecondsSinceEpoch.toString(),
-        'name': newItem['name'],
-        'quantity': newItem['quantity'],
-        'unit': newItem['unit'],
-        'category': newItem['category'],
-        'isChecked': false,
-        'isManual': true,
-      });
+      DummyData.addManualShoppingItem(
+        name: newItem['name'] as String,
+        quantity: newItem['quantity'] as String,
+        unit: newItem['unit'] as String,
+        category: newItem['category'] as String,
+      );
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isEmpty = _shoppingItems.isEmpty;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -181,19 +102,30 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
                 onTap: _navigateToAddManualItemPage,
               ),
               const SizedBox(height: AppSizes.spaceL),
-              ..._categories.map(
-                    (category) => Padding(
-                  padding: const EdgeInsets.only(
-                    bottom: AppSizes.spaceL,
+              if (isEmpty)
+                const Padding(
+                  padding: EdgeInsets.only(top: AppSizes.spaceXL),
+                  child: EmptyStateWidget(
+                    icon: Icons.shopping_cart_outlined,
+                    title: 'Shopping list is empty',
+                    subtitle:
+                    'Tambahkan item manual atau generate dari meal plan dan recipe detail.',
                   ),
-                  child: ShoppingListSection(
-                    title: category,
-                    items: _itemsByCategory(category),
-                    onItemTap: _toggleItem,
-                    onDeleteTap: _deleteItem,
+                )
+              else
+                ..._categories.map(
+                      (category) => Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: AppSizes.spaceL,
+                    ),
+                    child: ShoppingListSection(
+                      title: category,
+                      items: _itemsByCategory(category),
+                      onItemTap: _toggleItem,
+                      onDeleteTap: _deleteItem,
+                    ),
                   ),
                 ),
-              ),
               const SizedBox(height: AppSizes.spaceL),
             ],
           ),
@@ -219,6 +151,16 @@ class _ShoppingListHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        IconButton(
+          onPressed: () => Navigator.pop(context),
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: AppSizes.spaceM),
         Text(
           'Shopping List',
           style: AppTextStyles.h1,

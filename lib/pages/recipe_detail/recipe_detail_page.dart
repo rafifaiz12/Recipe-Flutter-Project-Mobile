@@ -5,6 +5,7 @@ import 'package:siresep/core/constants/app_sizes.dart';
 import 'package:siresep/core/constants/app_text_styles.dart';
 import 'package:siresep/core/utils/dummy_data.dart';
 import 'package:siresep/pages/review/add_review_page.dart';
+import 'package:siresep/pages/shopping_list/shopping_list_page.dart';
 
 class RecipeDetailPage extends StatefulWidget {
   const RecipeDetailPage({super.key});
@@ -29,15 +30,15 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
       return;
     }
 
-    final recipeId =
+    final String recipeId =
         ModalRoute.of(context)?.settings.arguments as String? ?? 'recipe_001';
 
     _recipe = DummyData.recipeById(recipeId) ?? DummyData.recipes.first;
     _reviews = List<Map<String, dynamic>>.from(
-      DummyData.reviewsByRecipeId(_recipe['id']),
+      DummyData.reviewsByRecipeId(_recipe['id'] as String),
     );
     _selectedServings = (_recipe['servings'] as int?) ?? 1;
-    _isFavorite = DummyData.isFavorite(_recipe['id']);
+    _isFavorite = DummyData.isFavorite(_recipe['id'] as String);
     _isInitialized = true;
   }
 
@@ -52,8 +53,8 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
 
   void _toggleFavorite() {
     setState(() {
-      DummyData.toggleFavorite(_recipe['id']);
-      _isFavorite = DummyData.isFavorite(_recipe['id']);
+      DummyData.toggleFavorite(_recipe['id'] as String);
+      _isFavorite = DummyData.isFavorite(_recipe['id'] as String);
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -68,13 +69,24 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
   }
 
   void _addToShoppingList() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Ingredients added to shopping list')),
+    setState(() {
+      DummyData.addRecipeIngredientsToShoppingList(
+        recipe: _recipe,
+        selectedServings: _selectedServings,
+      );
+    });
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const ShoppingListPage(),
+      ),
     );
   }
 
   Future<void> _openWriteReviewModal() async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final Map<String, dynamic>? result =
+    await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -87,8 +99,8 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
       return;
     }
 
-    final rating = result['rating'] as int?;
-    final comment = result['comment'] as String?;
+    final int? rating = result['rating'] as int?;
+    final String? comment = result['comment'] as String?;
 
     if (rating == null || rating == 0 || comment == null || comment.isEmpty) {
       return;
@@ -127,16 +139,12 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
   }
 
   double _scaledQuantity(double baseQuantity) {
-    final baseServings = (_recipe['servings'] as int?) ?? 1;
+    final int baseServings = (_recipe['servings'] as int?) ?? 1;
     return (baseQuantity / baseServings) * _selectedServings;
   }
 
   String _formatQuantity(double value) {
-    if (value % 1 == 0) {
-      return value.toStringAsFixed(0);
-    }
-
-    return value.toStringAsFixed(1);
+    return DummyData.formatQuantity(value);
   }
 
   String _formatReviewDate(String value) {
@@ -145,8 +153,8 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
     }
 
     try {
-      final createdAt = DateTime.parse(value);
-      final difference = DateTime.now().difference(createdAt).inDays;
+      final DateTime createdAt = DateTime.parse(value);
+      final int difference = DateTime.now().difference(createdAt).inDays;
 
       if (difference <= 0) {
         return 'Today';
@@ -161,7 +169,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
         return '1 week ago';
       }
 
-      final week = (difference / 7).floor();
+      final int week = (difference / 7).floor();
       return '$week weeks ago';
     } catch (_) {
       return value;
@@ -170,17 +178,20 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final title = _recipe['title'] as String? ?? '';
-    final description = _recipe['description'] as String? ?? '';
-    final imageUrl = _recipe['imageUrl'] as String? ?? '';
-    final cookTime = _recipe['cookTimeMinutes'].toString();
-    final difficulty = _recipe['difficulty'] as String? ?? '';
-    final rating = _recipe['ratingAverage'].toString();
-    final reviewCount = _reviews.length;
-    final ingredients = List<Map<String, dynamic>>.from(
+    final String title = _recipe['title'] as String? ?? '';
+    final String description = _recipe['description'] as String? ?? '';
+    final String imageUrl = _recipe['imageUrl'] as String? ?? '';
+    final String cookTime = _recipe['cookTimeMinutes'].toString();
+    final String difficulty = _recipe['difficulty'] as String? ?? '';
+    final String rating = _recipe['ratingAverage'].toString();
+    final int reviewCount = _reviews.length;
+    final List<Map<String, dynamic>> ingredients =
+    List<Map<String, dynamic>>.from(
       _recipe['ingredients'] as List,
     );
-    final instructions = List<String>.from(_recipe['instructions'] as List);
+    final List<String> instructions = List<String>.from(
+      _recipe['instructions'] as List,
+    );
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -299,7 +310,12 @@ class _RecipeHeroSection extends StatelessWidget {
       width: double.infinity,
       child: Stack(
         children: [
-          Positioned.fill(child: Image.network(imageUrl, fit: BoxFit.cover)),
+          Positioned.fill(
+            child: Image.network(
+              imageUrl,
+              fit: BoxFit.cover,
+            ),
+          ),
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -507,11 +523,11 @@ class _IngredientsSection extends StatelessWidget {
         ),
         const SizedBox(height: AppSizes.spaceL),
         ...ingredients.asMap().entries.map((entry) {
-          final index = entry.key;
-          final ingredient = entry.value;
-          final quantity = (ingredient['quantity'] as num).toDouble();
-          final unit = ingredient['unit'] as String? ?? '';
-          final name = ingredient['name'] as String? ?? '';
+          final int index = entry.key;
+          final Map<String, dynamic> ingredient = entry.value;
+          final double quantity = (ingredient['quantity'] as num).toDouble();
+          final String unit = ingredient['unit'] as String? ?? '';
+          final String name = ingredient['name'] as String? ?? '';
 
           return Column(
             children: [
@@ -539,7 +555,10 @@ class _IngredientsSection extends StatelessWidget {
                 ),
               ),
               if (index != ingredients.length - 1)
-                const Divider(height: 1, color: AppColors.border),
+                const Divider(
+                  height: 1,
+                  color: AppColors.border,
+                ),
             ],
           );
         }),
@@ -551,7 +570,9 @@ class _IngredientsSection extends StatelessWidget {
 class _InstructionsSection extends StatelessWidget {
   final List<String> instructions;
 
-  const _InstructionsSection({required this.instructions});
+  const _InstructionsSection({
+    required this.instructions,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -567,8 +588,8 @@ class _InstructionsSection extends StatelessWidget {
         ),
         const SizedBox(height: AppSizes.spaceL),
         ...instructions.asMap().entries.map((entry) {
-          final index = entry.key + 1;
-          final instruction = entry.value;
+          final int index = entry.key + 1;
+          final String instruction = entry.value;
 
           return Padding(
             padding: const EdgeInsets.only(bottom: AppSizes.spaceL),
@@ -659,12 +680,12 @@ class _ReviewsSection extends StatelessWidget {
         const SizedBox(height: AppSizes.spaceL),
         const SizedBox(height: AppSizes.spaceS),
         ...reviews.asMap().entries.map((entry) {
-          final index = entry.key;
-          final review = entry.value;
-          final userName = review['userName'] as String? ?? '';
-          final rating = review['rating'] as int? ?? 0;
-          final comment = review['comment'] as String? ?? '';
-          final createdAt = review['createdAt'] as String? ?? '';
+          final int index = entry.key;
+          final Map<String, dynamic> review = entry.value;
+          final String userName = review['userName'] as String? ?? '';
+          final int rating = review['rating'] as int? ?? 0;
+          final String comment = review['comment'] as String? ?? '';
+          final String createdAt = review['createdAt'] as String? ?? '';
 
           return Column(
             children: [
@@ -711,7 +732,10 @@ class _ReviewsSection extends StatelessWidget {
                 ),
               ),
               if (index != reviews.length - 1)
-                const Divider(height: 1, color: AppColors.border),
+                const Divider(
+                  height: 1,
+                  color: AppColors.border,
+                ),
               if (index != reviews.length - 1)
                 const SizedBox(height: AppSizes.spaceL),
             ],

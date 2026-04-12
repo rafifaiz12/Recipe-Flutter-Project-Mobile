@@ -328,7 +328,7 @@ class DummyData {
     'recipe_003',
   ];
 
-  static const List<Map<String, dynamic>> mealPlans = [
+  static final List<Map<String, dynamic>> mealPlans = [
     {
       'id': 'meal_001',
       'day': 'Mon',
@@ -355,43 +355,7 @@ class DummyData {
     },
   ];
 
-  static const List<Map<String, dynamic>> shoppingItems = [
-    {
-      'id': 'shop_001',
-      'name': 'Spaghetti',
-      'quantity': '200 g',
-      'category': 'Pasta & Grains',
-      'isChecked': false,
-    },
-    {
-      'id': 'shop_002',
-      'name': 'Eggs',
-      'quantity': '4 pcs',
-      'category': 'Dairy & Eggs',
-      'isChecked': true,
-    },
-    {
-      'id': 'shop_003',
-      'name': 'Parmesan cheese',
-      'quantity': '50 g',
-      'category': 'Dairy & Eggs',
-      'isChecked': false,
-    },
-    {
-      'id': 'shop_004',
-      'name': 'Salmon fillet',
-      'quantity': '2 pcs',
-      'category': 'Protein',
-      'isChecked': false,
-    },
-    {
-      'id': 'shop_005',
-      'name': 'Lemon',
-      'quantity': '1 pcs',
-      'category': 'Fruits & Vegetables',
-      'isChecked': true,
-    },
-  ];
+  static final List<Map<String, dynamic>> shoppingItems = [];
 
   static bool isFavorite(String recipeId) {
     return favoriteRecipeIds.contains(recipeId);
@@ -468,5 +432,172 @@ class DummyData {
         .map((item) => item['category'] as String)
         .toSet()
         .toList();
+  }
+
+  static String mapIngredientCategory(String name) {
+    final String value = name.toLowerCase();
+
+    if (value.contains('spaghetti') ||
+        value.contains('flour') ||
+        value.contains('bread')) {
+      return 'Pasta & Grains';
+    }
+
+    if (value.contains('egg') ||
+        value.contains('milk') ||
+        value.contains('parmesan') ||
+        value.contains('feta') ||
+        value.contains('cheese') ||
+        value.contains('yogurt')) {
+      return 'Dairy & Eggs';
+    }
+
+    if (value.contains('bacon') ||
+        value.contains('salmon') ||
+        value.contains('chicken')) {
+      return 'Meat & Fish';
+    }
+
+    return 'Fruits & Vegetables';
+  }
+
+  static String formatQuantity(double value) {
+    if (value % 1 == 0) {
+      return value.toStringAsFixed(0);
+    }
+
+    return value.toStringAsFixed(1);
+  }
+
+  static List<Map<String, dynamic>> get shoppingItemsSnapshot {
+    return shoppingItems
+        .map((item) => Map<String, dynamic>.from(item))
+        .toList();
+  }
+
+  static void clearShoppingItems() {
+    shoppingItems.clear();
+  }
+
+  static void addManualShoppingItem({
+    required String name,
+    required String quantity,
+    required String unit,
+    required String category,
+  }) {
+    addOrMergeShoppingItem({
+      'id': 'manual_${DateTime.now().microsecondsSinceEpoch}',
+      'name': name,
+      'quantity': quantity,
+      'unit': unit,
+      'category': category,
+      'isChecked': false,
+      'isManual': true,
+    });
+  }
+
+  static void addOrMergeShoppingItem(Map<String, dynamic> item) {
+    final String name = item['name']?.toString() ?? '';
+    final String quantity = item['quantity']?.toString() ?? '0';
+    final String unit = item['unit']?.toString() ?? '';
+    final String category = item['category']?.toString() ?? 'Others';
+    final bool isChecked = item['isChecked'] as bool? ?? false;
+    final bool isManual = item['isManual'] as bool? ?? false;
+
+    final int existingIndex = shoppingItems.indexWhere(
+          (existing) =>
+      (existing['name'] as String).toLowerCase() == name.toLowerCase() &&
+          existing['unit'] == unit &&
+          existing['category'] == category,
+    );
+
+    if (existingIndex == -1) {
+      shoppingItems.add({
+        'id': item['id']?.toString() ??
+            DateTime.now().microsecondsSinceEpoch.toString(),
+        'name': name,
+        'quantity': quantity,
+        'unit': unit,
+        'category': category,
+        'isChecked': isChecked,
+        'isManual': isManual,
+      });
+      return;
+    }
+
+    final double currentQty =
+        double.tryParse(shoppingItems[existingIndex]['quantity'].toString()) ?? 0;
+    final double incomingQty = double.tryParse(quantity) ?? 0;
+
+    shoppingItems[existingIndex]['quantity'] =
+        formatQuantity(currentQty + incomingQty);
+    shoppingItems[existingIndex]['isChecked'] =
+        (shoppingItems[existingIndex]['isChecked'] as bool) || isChecked;
+  }
+
+  static void removeShoppingItem(String id) {
+    shoppingItems.removeWhere((item) => item['id'] == id);
+  }
+
+  static void toggleShoppingItem(String id) {
+    final int index = shoppingItems.indexWhere((item) => item['id'] == id);
+
+    if (index == -1) {
+      return;
+    }
+
+    shoppingItems[index]['isChecked'] =
+    !(shoppingItems[index]['isChecked'] as bool);
+  }
+
+  static void addRecipeIngredientsToShoppingList({
+    required Map<String, dynamic> recipe,
+    required int selectedServings,
+  }) {
+    final int baseServings = (recipe['servings'] as int?) ?? 1;
+    final List<Map<String, dynamic>> ingredients = List<Map<String, dynamic>>.from(
+      recipe['ingredients'] as List,
+    );
+
+    for (final ingredient in ingredients) {
+      final String name = ingredient['name'] as String? ?? '';
+      final double baseQuantity = (ingredient['quantity'] as num).toDouble();
+      final double scaledQuantity =
+          (baseQuantity / baseServings) * selectedServings;
+      final String unit = ingredient['unit'] as String? ?? '';
+
+      addOrMergeShoppingItem({
+        'id': 'recipe_${recipe['id']}_$name',
+        'name': name,
+        'quantity': formatQuantity(scaledQuantity),
+        'unit': unit,
+        'category': mapIngredientCategory(name),
+        'isChecked': false,
+        'isManual': false,
+      });
+    }
+  }
+
+  static void generateShoppingItemsFromMealPlans() {
+    clearShoppingItems();
+
+    for (final meal in mealPlans) {
+      final String? recipeId = meal['recipeId'] as String?;
+      if (recipeId == null) {
+        continue;
+      }
+
+      final Map<String, dynamic>? recipe = recipeById(recipeId);
+      if (recipe == null) {
+        continue;
+      }
+
+      final int servings = (recipe['servings'] as int?) ?? 1;
+
+      addRecipeIngredientsToShoppingList(
+        recipe: recipe,
+        selectedServings: servings,
+      );
+    }
   }
 }
