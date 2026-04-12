@@ -7,8 +7,8 @@ import 'package:siresep/pages/search/search_page.dart';
 import 'package:siresep/pages/favorites/favorites_page.dart';
 import 'package:siresep/pages/meal_plan/meal_plan_page.dart';
 import 'package:siresep/pages/shopping_list/shopping_list_page.dart';
-import 'package:siresep/pages/profile/profile_page.dart';
 import 'package:siresep/pages/profile/account_settings_page.dart';
+import 'package:siresep/pages/profile/profile_page.dart';
 import 'package:siresep/pages/recipe_detail/recipe_detail_page.dart';
 
 class AppRoutes {
