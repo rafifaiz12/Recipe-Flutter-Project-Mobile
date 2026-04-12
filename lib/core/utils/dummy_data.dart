@@ -6,10 +6,6 @@ class DummyData {
     'photoUrl': '',
     'role': 'user',
     'dietaryPreferences': ['High Protein', 'Low Sugar'],
-    'favoriteRecipeIds': [
-      'recipe_001',
-      'recipe_003',
-    ],
   };
 
   static const List<Map<String, dynamic>> categories = [
@@ -251,7 +247,7 @@ class DummyData {
       'description':
       'Roti panggang renyah dengan alpukat lembut dan topping sederhana.',
       'imageUrl':
-      'https://images.unsplash.com/photo-1603046891744-02438f3f711d?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1525351484163-7529414344d8?q=80&w=1200&auto=format&fit=crop',
       'categoryId': 'cat_002',
       'categoryName': 'Breakfast',
       'cookTimeMinutes': 10,
@@ -327,7 +323,7 @@ class DummyData {
     },
   ];
 
-  static const List<String> favoriteRecipeIds = [
+  static final List<String> favoriteRecipeIds = [
     'recipe_001',
     'recipe_003',
   ];
@@ -397,6 +393,28 @@ class DummyData {
     },
   ];
 
+  static bool isFavorite(String recipeId) {
+    return favoriteRecipeIds.contains(recipeId);
+  }
+
+  static void addFavorite(String recipeId) {
+    if (!favoriteRecipeIds.contains(recipeId)) {
+      favoriteRecipeIds.add(recipeId);
+    }
+  }
+
+  static void removeFavorite(String recipeId) {
+    favoriteRecipeIds.remove(recipeId);
+  }
+
+  static void toggleFavorite(String recipeId) {
+    if (isFavorite(recipeId)) {
+      removeFavorite(recipeId);
+    } else {
+      addFavorite(recipeId);
+    }
+  }
+
   static List<Map<String, dynamic>> get trendingRecipes {
     return recipes.where((recipe) => recipe['isTrending'] == true).toList();
   }
@@ -408,9 +426,7 @@ class DummyData {
   }
 
   static List<Map<String, dynamic>> get lunchRecipes {
-    return recipes
-        .where((recipe) => recipe['categoryName'] == 'Lunch')
-        .toList();
+    return recipes.where((recipe) => recipe['categoryName'] == 'Lunch').toList();
   }
 
   static List<Map<String, dynamic>> get dinnerRecipes {

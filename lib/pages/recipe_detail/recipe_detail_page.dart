@@ -37,13 +37,13 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
       DummyData.reviewsByRecipeId(_recipe['id']),
     );
     _selectedServings = (_recipe['servings'] as int?) ?? 1;
-    _isFavorite = DummyData.favoriteRecipeIds.contains(_recipe['id']);
+    _isFavorite = DummyData.isFavorite(_recipe['id']);
     _isInitialized = true;
   }
 
   void _goBackToHome() {
     if (Navigator.canPop(context)) {
-      Navigator.pop(context);
+      Navigator.pop(context, true);
       return;
     }
 
@@ -52,7 +52,8 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
 
   void _toggleFavorite() {
     setState(() {
-      _isFavorite = !_isFavorite;
+      DummyData.toggleFavorite(_recipe['id']);
+      _isFavorite = DummyData.isFavorite(_recipe['id']);
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
