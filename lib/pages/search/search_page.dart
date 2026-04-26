@@ -21,16 +21,15 @@ class _SearchPageState extends State<SearchPage> {
   String? _selectedCuisine;
 
   final List<String> _cookingTimeOptions = const [
-    '<15 menit',
-    '15 menit - 1 jam',
-    '>1 jam',
+    '<15 minutes',
+    '15 minutes - 1 hours',
+    '>1 hours',
   ];
 
   final List<String> _courseTypeOptions = const [
-    'Sarapan',
-    'Makan Siang',
-    'Makan Malam',
-    'Dessert',
+    'Breakfas',
+    'Lunch',
+    'Diner',
   ];
 
   final List<String> _cuisineOptions = const ['Indonesia', 'Asian', 'Western'];
