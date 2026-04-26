@@ -32,7 +32,7 @@ class _SearchPageState extends State<SearchPage> {
     'Diner',
   ];
 
-  final List<String> _cuisineOptions = const ['Indonesia', 'Asian', 'Western'];
+  final List<String> _cuisineOptions = const ['Eastern', 'Asian', 'Western'];
 
   static const Map<String, String> _courseTypeToCategoryName = {
     'Sarapan': 'Breakfast',
