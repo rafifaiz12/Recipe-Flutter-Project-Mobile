@@ -15,6 +15,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
+
   List<Map<String, dynamic>> _filteredRecipes = [];
   bool _showSuggestions = false;
 
@@ -54,6 +55,7 @@ class _HomePageState extends State<HomePage> {
 
   void _goToRecipeDetail(String recipeId) {
     _searchController.clear();
+
     setState(() {
       _showSuggestions = false;
       _filteredRecipes = [];
@@ -68,6 +70,10 @@ class _HomePageState extends State<HomePage> {
 
   void _goToProfile() {
     Navigator.pushNamed(context, AppRoutes.profile);
+  }
+
+  void _goToAiChat() {
+    Navigator.pushNamed(context, AppRoutes.aiChat);
   }
 
   @override
@@ -200,10 +206,13 @@ class _HomePageState extends State<HomePage> {
                           itemCount: _filteredRecipes.length > 5
                               ? 5
                               : _filteredRecipes.length,
-                          separatorBuilder: (_, __) =>
-                          const Divider(height: 1, color: AppColors.border),
+                          separatorBuilder: (_, __) => const Divider(
+                            height: 1,
+                            color: AppColors.border,
+                          ),
                           itemBuilder: (context, index) {
                             final recipe = _filteredRecipes[index];
+
                             return ListTile(
                               title: Text(
                                 recipe['title'],
@@ -221,6 +230,11 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
 
+                const SizedBox(height: AppSizes.spaceL),
+                _AiRecipeAssistantCard(
+                  onTap: _goToAiChat,
+                ),
+
                 const SizedBox(height: AppSizes.spaceXL),
                 const SectionTitle(title: 'Trending Recipes'),
                 const SizedBox(height: AppSizes.spaceM),
@@ -234,6 +248,7 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(width: AppSizes.spaceM),
                     itemBuilder: (context, index) {
                       final recipe = trendingRecipes[index];
+
                       return SizedBox(
                         width: 300,
                         child: _HorizontalRecipeCard(
@@ -271,6 +286,83 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AiRecipeAssistantCard extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _AiRecipeAssistantCard({
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(AppSizes.paddingL),
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.shadow,
+              blurRadius: 12,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              height: 54,
+              width: 54,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.18),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.auto_awesome,
+                color: Colors.white,
+                size: 28,
+              ),
+            ),
+            const SizedBox(width: AppSizes.spaceM),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Ask AI Recipe',
+                    style: AppTextStyles.h2.copyWith(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: AppSizes.spaceXS),
+                  Text(
+                    'Masukkan bahan yang tersedia dan dapatkan rekomendasi resep.',
+                    style: AppTextStyles.bodySecondary.copyWith(
+                      color: Colors.white.withValues(alpha: 0.88),
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: AppSizes.spaceM),
+            const Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.white,
+              size: 18,
+            ),
+          ],
         ),
       ),
     );

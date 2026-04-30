@@ -10,6 +10,7 @@ import 'package:siresep/pages/shopping_list/shopping_list_page.dart';
 import 'package:siresep/pages/profile/account_settings_page.dart';
 import 'package:siresep/pages/profile/profile_page.dart';
 import 'package:siresep/pages/recipe_detail/recipe_detail_page.dart';
+import 'package:siresep/pages/ai_chat/ai_chat_page.dart';
 
 class AppRoutes {
   static const String login = '/login';
@@ -23,6 +24,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String accountSettings = '/account-settings';
   static const String recipeDetail = '/recipe-detail';
+  static const String aiChat = '/ai-chat';
 
   static Map<String, WidgetBuilder> get routes {
     return {
@@ -37,6 +39,7 @@ class AppRoutes {
       profile: (context) => const ProfilePage(),
       accountSettings: (context) => const AccountSettingsPage(),
       recipeDetail: (context) => const RecipeDetailPage(),
+      aiChat: (context) => const AiChatPage(),
     };
   }
 }
