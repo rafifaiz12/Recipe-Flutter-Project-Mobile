@@ -3,6 +3,7 @@ import 'package:siresep/core/constants/app_colors.dart';
 import 'package:siresep/core/constants/app_sizes.dart';
 import 'package:siresep/core/constants/app_text_styles.dart';
 import 'package:siresep/core/widgets/custom_text_field.dart';
+import 'package:siresep/models/shopping_item_model.dart';
 
 class AddManualItemPage extends StatefulWidget {
   const AddManualItemPage({super.key});
@@ -37,18 +38,30 @@ class _AddManualItemPageState extends State<AddManualItemPage> {
   }
 
   void _saveItem() {
-    if (!_formKey.currentState!.validate()) {
+    if (!_formKey.currentState!
+        .validate()) {
       return;
     }
 
-    Navigator.pop<Map<String, dynamic>>(
+    final item = ShoppingItemModel(
+      id: DateTime.now()
+          .millisecondsSinceEpoch
+          .toString(),
+      userId: 'temporary_user',
+      name: _itemNameController.text
+          .trim(),
+      quantity:
+      _quantityController.text.trim(),
+      unit: _selectedUnit,
+      category: _selectedCategory,
+      isChecked: false,
+      isManual: true,
+      createdAt: DateTime.now(),
+    );
+
+    Navigator.pop<ShoppingItemModel>(
       context,
-      {
-        'name': _itemNameController.text.trim(),
-        'quantity': _quantityController.text.trim(),
-        'unit': _selectedUnit,
-        'category': _selectedCategory,
-      },
+      item,
     );
   }
 

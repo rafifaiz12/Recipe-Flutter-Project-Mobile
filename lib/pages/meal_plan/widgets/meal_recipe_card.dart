@@ -1,69 +1,120 @@
 import 'package:flutter/material.dart';
+
 import 'package:siresep/core/constants/app_colors.dart';
 import 'package:siresep/core/constants/app_sizes.dart';
 import 'package:siresep/core/constants/app_text_styles.dart';
 
-class MealRecipeCard extends StatelessWidget {
-  final String title;
-  final String imageUrl;
-  final String subtitle;
+import 'package:siresep/models/recipe_model.dart';
+
+class MealRecipeCard
+    extends StatelessWidget {
+  final RecipeModel recipe;
+
   final VoidCallback onTap;
 
   const MealRecipeCard({
     super.key,
-    required this.title,
-    required this.imageUrl,
-    required this.subtitle,
+    required this.recipe,
     required this.onTap,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+      BuildContext context,
+      ) {
     return Material(
       color: AppColors.card,
-      borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+      borderRadius:
+      BorderRadius.circular(
+        AppSizes.radiusXL,
+      ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+        borderRadius:
+        BorderRadius.circular(
+          AppSizes.radiusXL,
+        ),
         child: Container(
           height: 220,
           width: double.infinity,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+            borderRadius:
+            BorderRadius.circular(
+              AppSizes.radiusXL,
+            ),
             image: DecorationImage(
-              image: NetworkImage(imageUrl),
+              image: NetworkImage(
+                recipe.imageUrl,
+              ),
               fit: BoxFit.cover,
               onError: (_, __) {},
             ),
           ),
           child: Container(
-            padding: const EdgeInsets.all(AppSizes.paddingL),
+            padding:
+            const EdgeInsets.all(
+              AppSizes.paddingL,
+            ),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppSizes.radiusXL),
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+              borderRadius:
+              BorderRadius.circular(
+                AppSizes.radiusXL,
+              ),
+              gradient:
+              LinearGradient(
+                begin:
+                Alignment
+                    .topCenter,
+                end:
+                Alignment
+                    .bottomCenter,
                 colors: [
-                  AppColors.textPrimary.withValues(alpha: 0.08),
-                  AppColors.textPrimary.withValues(alpha: 0.45),
+                  AppColors
+                      .textPrimary
+                      .withValues(
+                    alpha: 0.08,
+                  ),
+                  AppColors
+                      .textPrimary
+                      .withValues(
+                    alpha: 0.45,
+                  ),
                 ],
               ),
             ),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment:
+              MainAxisAlignment
+                  .end,
+              crossAxisAlignment:
+              CrossAxisAlignment
+                  .start,
               children: [
                 Text(
-                  title,
-                  style: AppTextStyles.h2.copyWith(
-                    color: AppColors.card,
+                  recipe.title,
+                  style:
+                  AppTextStyles.h2
+                      .copyWith(
+                    color:
+                    AppColors.card,
                     fontSize: 18,
                   ),
                 ),
-                const SizedBox(height: AppSizes.spaceXS),
+
+                const SizedBox(
+                  height:
+                  AppSizes.spaceXS,
+                ),
+
                 Text(
-                  subtitle,
-                  style: AppTextStyles.caption.copyWith(color: AppColors.card),
+                  '${recipe.servings} porsi • ${recipe.cookTimeMinutes} min',
+                  style:
+                  AppTextStyles
+                      .caption
+                      .copyWith(
+                    color:
+                    AppColors.card,
+                  ),
                 ),
               ],
             ),

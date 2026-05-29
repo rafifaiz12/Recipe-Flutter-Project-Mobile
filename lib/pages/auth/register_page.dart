@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:siresep/app/routes.dart';
 import 'package:siresep/core/constants/app_colors.dart';
 import 'package:siresep/core/constants/app_sizes.dart';
@@ -7,20 +8,29 @@ import 'package:siresep/core/constants/app_text_styles.dart';
 import 'package:siresep/core/utils/validators.dart';
 import 'package:siresep/core/widgets/custom_text_field.dart';
 import 'package:siresep/core/widgets/primary_button.dart';
+import 'package:siresep/providers/auth_provider.dart';
+import 'package:siresep/providers/profile_provider.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  State<RegisterPage> createState() =>
+      _RegisterPageState();
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey =
+  GlobalKey<FormState>();
 
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nameController =
+  TextEditingController();
+
+  final TextEditingController _emailController =
+  TextEditingController();
+
+  final TextEditingController _passwordController =
+  TextEditingController();
 
   bool _obscurePassword = true;
 
@@ -29,13 +39,33 @@ class _RegisterPageState extends State<RegisterPage> {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+
     super.dispose();
   }
 
-  void _goToMainPage() {
-    if (_formKey.currentState!.validate()) {
-      Navigator.pushReplacementNamed(context, AppRoutes.main);
+  Future<void> _register() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
     }
+
+    final authProvider = context.read<AuthProvider>();
+
+    await authProvider.register(
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+    );
+
+    await context
+        .read<ProfileProvider>()
+        .loadProfile();
+
+    if (!mounted) return;
+
+    Navigator.pushReplacementNamed(
+      context,
+      AppRoutes.main,
+    );
   }
 
   void _goToLoginPage() {
@@ -44,6 +74,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+
     return Scaffold(
       backgroundColor: AppColors.card,
       body: SafeArea(
@@ -71,13 +103,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           fontSize: 54,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 1,
-                          shadows: const [
-                            Shadow(
-                              color: Colors.black26,
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
                         ),
                       ),
                     ),
@@ -99,7 +124,10 @@ class _RegisterPageState extends State<RegisterPage> {
                         controller: _nameController,
                         hintText: AppStrings.fullName,
                         validator: (value) =>
-                            Validators.validateRequired(value, 'Nama'),
+                            Validators.validateRequired(
+                              value,
+                              'Nama',
+                            ),
                       ),
                       const SizedBox(height: AppSizes.spaceM),
                       CustomTextField(
@@ -112,11 +140,13 @@ class _RegisterPageState extends State<RegisterPage> {
                         controller: _passwordController,
                         hintText: AppStrings.password,
                         obscureText: _obscurePassword,
-                        validator: Validators.validatePassword,
+                        validator:
+                        Validators.validatePassword,
                         suffixIcon: IconButton(
                           onPressed: () {
                             setState(() {
-                              _obscurePassword = !_obscurePassword;
+                              _obscurePassword =
+                              !_obscurePassword;
                             });
                           },
                           icon: Icon(
@@ -129,25 +159,37 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       const SizedBox(height: AppSizes.spaceL),
                       PrimaryButton(
-                        text: AppStrings.register.toUpperCase(),
-                        onPressed: _goToMainPage,
-                        backgroundColor: AppColors.secondary,
+                        text: authProvider.isLoading
+                            ? 'LOADING...'
+                            : AppStrings.register
+                            .toUpperCase(),
+                        onPressed: authProvider.isLoading
+                            ? null
+                            : _register,
+                        backgroundColor:
+                        AppColors.secondary,
                       ),
                       const SizedBox(height: AppSizes.spaceM),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment:
+                        MainAxisAlignment.center,
                         children: [
                           Text(
                             'Already have an account? ',
-                            style: AppTextStyles.bodySecondary,
+                            style:
+                            AppTextStyles.bodySecondary,
                           ),
                           GestureDetector(
                             onTap: _goToLoginPage,
                             child: Text(
                               'Login',
-                              style: AppTextStyles.bodySecondary.copyWith(
-                                color: AppColors.secondary,
-                                fontWeight: FontWeight.w700,
+                              style: AppTextStyles
+                                  .bodySecondary
+                                  .copyWith(
+                                color:
+                                AppColors.secondary,
+                                fontWeight:
+                                FontWeight.w700,
                               ),
                             ),
                           ),

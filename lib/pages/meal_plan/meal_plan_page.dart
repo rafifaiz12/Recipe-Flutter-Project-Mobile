@@ -1,67 +1,97 @@
 import 'package:flutter/material.dart';
+
+import 'package:provider/provider.dart';
+
 import 'package:siresep/app/routes.dart';
+
 import 'package:siresep/core/constants/app_colors.dart';
 import 'package:siresep/core/constants/app_sizes.dart';
 import 'package:siresep/core/constants/app_text_styles.dart';
+
 import 'package:siresep/core/utils/dummy_data.dart';
+
+import 'package:siresep/models/recipe_model.dart';
+
 import 'package:siresep/pages/meal_plan/add_meal_recipe_page.dart'
-    as meal_modal;
+as meal_modal;
+
 import 'package:siresep/pages/meal_plan/widgets/day_selector_chip.dart';
+import 'package:siresep/pages/meal_plan/widgets/empty_meal_card.dart';
 import 'package:siresep/pages/meal_plan/widgets/meal_recipe_card.dart';
 import 'package:siresep/pages/meal_plan/widgets/meal_section.dart';
+
 import 'package:siresep/pages/shopping_list/shopping_list_page.dart';
 
-class MealPlanPage extends StatefulWidget {
-  const MealPlanPage({super.key});
+import 'package:siresep/providers/meal_plan_provider.dart';
+import 'package:siresep/providers/shopping_list_provider.dart';
+
+class MealPlanPage
+    extends StatefulWidget {
+  const MealPlanPage({
+    super.key,
+  });
 
   @override
-  State<MealPlanPage> createState() => _MealPlanPageState();
+  State<MealPlanPage>
+  createState() =>
+      _MealPlanPageState();
 }
 
-class _MealPlanPageState extends State<MealPlanPage> {
-  int _selectedDayIndex = 0;
+class _MealPlanPageState
+    extends State<MealPlanPage> {
+  final List<RecipeModel>
+  _recipes =
+      DummyData.recipes;
 
-  final List<String> _days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+  @override
+  void initState() {
+    super.initState();
 
-  Map<String, dynamic>? _recipeFromMeal(String day, String mealType) {
-    final Map<String, dynamic>? meal = DummyData.mealPlanByDayAndType(
-      day,
-      mealType,
-    );
-
-    if (meal == null) {
-      return null;
-    }
-
-    final String? recipeId = meal['recipeId'] as String?;
-    if (recipeId == null) {
-      return null;
-    }
-
-    return DummyData.recipeById(recipeId);
+    Future.microtask(() async {
+      await context
+          .read<
+          MealPlanProvider>()
+          .loadMealPlans();
+    });
   }
 
-  Future<void> _openAddMealModal(String mealType) async {
-    final String selectedDay = _days[_selectedDayIndex];
-
-    final String? recipeId = await showModalBottomSheet<String>(
+  Future<void>
+  _openAddMealModal({
+    required String mealType,
+  }) async {
+    final RecipeModel?
+    recipe =
+    await showModalBottomSheet<
+        RecipeModel>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => meal_modal.AddMealRecipePage(mealType: mealType),
+      backgroundColor:
+      Colors.transparent,
+      builder:
+          (_) =>
+          meal_modal
+              .AddMealRecipePage(
+            mealType: mealType,
+            recipes: _recipes,
+          ),
     );
 
-    if (recipeId == null) {
+    if (recipe == null) {
       return;
     }
 
-    setState(() {
-      DummyData.upsertMealPlan(
-        day: selectedDay,
-        mealType: mealType,
-        recipeId: recipeId,
-      );
-    });
+    if (!mounted) {
+      return;
+    }
+
+    await context
+        .read<
+        MealPlanProvider>()
+        .addMealPlan(
+      mealType:
+      mealType,
+      recipe: recipe,
+    );
 
     if (!mounted) {
       return;
@@ -69,113 +99,165 @@ class _MealPlanPageState extends State<MealPlanPage> {
 
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text('$mealType added to meal planner')));
-  }
-
-  void _openRecipeDetail(String recipeId) {
-    Navigator.pushNamed(context, AppRoutes.recipeDetail, arguments: recipeId);
-  }
-
-  void _deleteMeal(String mealType) {
-    final String selectedDay = _days[_selectedDayIndex];
-
-    setState(() {
-      DummyData.removeMealPlan(day: selectedDay, mealType: mealType);
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$mealType removed from meal planner')),
+    ).showSnackBar(
+      SnackBar(
+        content: Text(
+          '$mealType added to meal planner',
+        ),
+      ),
     );
   }
 
-  void _openShoppingListPage() {
-    final String selectedDay = _days[_selectedDayIndex];
+  Future<void>
+  _deleteMeal({
+    required String mealType,
+  }) async {
+    await context
+        .read<
+        MealPlanProvider>()
+        .deleteMealPlan(
+      mealType:
+      mealType,
+    );
 
-    setState(() {
-      DummyData.generateShoppingItemsFromMealPlans(day: selectedDay);
-    });
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(
+      SnackBar(
+        content: Text(
+          '$mealType removed',
+        ),
+      ),
+    );
+  }
+
+  void _openRecipeDetail(
+      String recipeId,
+      ) {
+    Navigator.pushNamed(
+      context,
+      AppRoutes.recipeDetail,
+      arguments: recipeId,
+    );
+  }
+
+  Future<void>
+  _openShoppingListPage()
+  async {
+    final mealProvider =
+    context.read<
+        MealPlanProvider>();
+
+    final shoppingProvider =
+    context.read<
+        ShoppingListProvider>();
+
+    final meals =
+    mealProvider.mealPlans
+        .where(
+          (meal) =>
+      meal.day ==
+          mealProvider
+              .selectedDay,
+    )
+        .toList();
+
+    for (final meal
+    in meals) {
+      try {
+        final recipe =
+        _recipes.firstWhere(
+              (recipe) =>
+          recipe.id ==
+              meal.recipeId,
+        );
+
+        await shoppingProvider
+            .addRecipeIngredients(
+          recipe,
+          recipe.servings,
+        );
+      } catch (_) {}
+    }
+
+    if (!mounted) {
+      return;
+    }
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const ShoppingListPage()),
-    );
-  }
-
-  Widget _buildEmptyMealCard({
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: AppColors.card,
-      borderRadius: BorderRadius.circular(AppSizes.radiusXL),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSizes.radiusXL),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(
-            vertical: 52,
-            horizontal: AppSizes.paddingL,
-          ),
-          decoration: BoxDecoration(
-            color: AppColors.card,
-            borderRadius: BorderRadius.circular(AppSizes.radiusXL),
-            border: Border.all(color: AppColors.border, width: 1.5),
-          ),
-          child: Column(
-            children: [
-              const Icon(Icons.add, size: 44, color: AppColors.textSecondary),
-              const SizedBox(height: AppSizes.spaceM),
-              Text(
-                label,
-                style: AppTextStyles.bodySecondary.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ),
-        ),
+      MaterialPageRoute(
+        builder:
+            (_) =>
+        const ShoppingListPage(),
       ),
     );
   }
 
   Widget _buildMealContent({
     required String mealType,
-    required Map<String, dynamic>? recipe,
+    required RecipeModel?
+    recipe,
   }) {
     if (recipe == null) {
-      return _buildEmptyMealCard(
-        label: 'Add ${mealType.toLowerCase()}',
-        onTap: () => _openAddMealModal(mealType),
+      return EmptyMealCard(
+        label:
+        'Add ${mealType.toLowerCase()}',
+        onTap:
+            () =>
+            _openAddMealModal(
+              mealType:
+              mealType,
+            ),
       );
     }
 
     return Stack(
       children: [
         MealRecipeCard(
-          title: recipe['title'] as String? ?? '',
-          imageUrl: recipe['imageUrl'] as String? ?? '',
-          subtitle:
-              '${recipe['servings']} porsi • ${recipe['cookTimeMinutes']} min',
-          onTap: () => _openRecipeDetail(recipe['id'] as String),
+          recipe: recipe,
+          onTap:
+              () =>
+              _openRecipeDetail(
+                recipe.id,
+              ),
         ),
+
         Positioned(
-          top: AppSizes.paddingM,
-          right: AppSizes.paddingM,
+          top:
+          AppSizes.paddingM,
+          right:
+          AppSizes.paddingM,
           child: Material(
-            color: Colors.white.withValues(alpha: 0.92),
-            shape: const CircleBorder(),
+            color: Colors.white
+                .withValues(
+              alpha: 0.92,
+            ),
+            shape:
+            const CircleBorder(),
             child: InkWell(
-              onTap: () => _deleteMeal(mealType),
-              customBorder: const CircleBorder(),
-              child: const SizedBox(
+              onTap:
+                  () =>
+                  _deleteMeal(
+                    mealType:
+                    mealType,
+                  ),
+              customBorder:
+              const CircleBorder(),
+              child:
+              const SizedBox(
                 height: 42,
                 width: 42,
                 child: Icon(
-                  Icons.delete_outline,
-                  color: AppColors.error,
-                  size: AppSizes.iconM,
+                  Icons
+                      .delete_outline,
+                  color:
+                  AppColors
+                      .error,
                 ),
               ),
             ),
@@ -186,82 +268,212 @@ class _MealPlanPageState extends State<MealPlanPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final String selectedDay = _days[_selectedDayIndex];
+  Widget build(
+      BuildContext context,
+      ) {
+    final provider =
+    context.watch<
+        MealPlanProvider>();
 
-    final Map<String, dynamic>? breakfast = _recipeFromMeal(
-      selectedDay,
+    final breakfast =
+    provider
+        .recipeFromMeal(
+      mealType:
       'Breakfast',
+      recipes: _recipes,
     );
-    final Map<String, dynamic>? lunch = _recipeFromMeal(selectedDay, 'Lunch');
-    final Map<String, dynamic>? dinner = _recipeFromMeal(selectedDay, 'Dinner');
+
+    final lunch =
+    provider
+        .recipeFromMeal(
+      mealType: 'Lunch',
+      recipes: _recipes,
+    );
+
+    final dinner =
+    provider
+        .recipeFromMeal(
+      mealType: 'Dinner',
+      recipes: _recipes,
+    );
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor:
+      AppColors.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSizes.paddingL),
+        child:
+        provider.isLoading
+            ? const Center(
+          child:
+          CircularProgressIndicator(),
+        )
+            : SingleChildScrollView(
+          padding:
+          const EdgeInsets.all(
+            AppSizes
+                .paddingL,
+          ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+            CrossAxisAlignment
+                .start,
             children: [
               Text(
                 'Meal Planner',
-                style: AppTextStyles.h1.copyWith(fontSize: 30),
+                style:
+                AppTextStyles
+                    .h1
+                    .copyWith(
+                  fontSize:
+                  30,
+                ),
               ),
-              const SizedBox(height: AppSizes.spaceS),
+
+              const SizedBox(
+                height:
+                AppSizes
+                    .spaceS,
+              ),
+
               Text(
                 'Plan your weekly meals',
-                style: AppTextStyles.bodySecondary.copyWith(fontSize: 18),
+                style:
+                AppTextStyles
+                    .bodySecondary
+                    .copyWith(
+                  fontSize:
+                  18,
+                ),
               ),
-              const SizedBox(height: AppSizes.spaceL),
+
+              const SizedBox(
+                height:
+                AppSizes
+                    .spaceL,
+              ),
+
               SizedBox(
                 height: 58,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _days.length,
-                  separatorBuilder: (_, __) =>
-                      const SizedBox(width: AppSizes.spaceM),
-                  itemBuilder: (context, index) {
+                child:
+                ListView.separated(
+                  scrollDirection:
+                  Axis
+                      .horizontal,
+                  itemCount:
+                  provider
+                      .days
+                      .length,
+                  separatorBuilder:
+                      (_, __) =>
+                  const SizedBox(
+                    width:
+                    AppSizes
+                        .spaceM,
+                  ),
+                  itemBuilder:
+                      (
+                      context,
+                      index,
+                      ) {
                     return DaySelectorChip(
-                      label: _days[index],
-                      isSelected: _selectedDayIndex == index,
-                      onTap: () {
-                        setState(() {
-                          _selectedDayIndex = index;
-                        });
+                      label:
+                      provider.days[index],
+                      isSelected:
+                      provider.selectedDayIndex ==
+                          index,
+                      onTap:
+                          () {
+                        provider.selectDay(
+                          index,
+                        );
                       },
                     );
                   },
                 ),
               ),
-              const SizedBox(height: AppSizes.spaceXL),
+
+              const SizedBox(
+                height:
+                AppSizes
+                    .spaceXL,
+              ),
+
               MealSection(
-                title: 'Breakfast',
-                child: _buildMealContent(
-                  mealType: 'Breakfast',
-                  recipe: breakfast,
+                title:
+                'Breakfast',
+                child:
+                _buildMealContent(
+                  mealType:
+                  'Breakfast',
+                  recipe:
+                  breakfast,
                 ),
               ),
-              const SizedBox(height: AppSizes.spaceXL),
-              MealSection(
-                title: 'Lunch',
-                child: _buildMealContent(mealType: 'Lunch', recipe: lunch),
+
+              const SizedBox(
+                height:
+                AppSizes
+                    .spaceXL,
               ),
-              const SizedBox(height: AppSizes.spaceXL),
+
               MealSection(
-                title: 'Dinner',
-                child: _buildMealContent(mealType: 'Dinner', recipe: dinner),
+                title:
+                'Lunch',
+                child:
+                _buildMealContent(
+                  mealType:
+                  'Lunch',
+                  recipe:
+                  lunch,
+                ),
               ),
-              const SizedBox(height: AppSizes.spaceXL),
+
+              const SizedBox(
+                height:
+                AppSizes
+                    .spaceXL,
+              ),
+
+              MealSection(
+                title:
+                'Dinner',
+                child:
+                _buildMealContent(
+                  mealType:
+                  'Dinner',
+                  recipe:
+                  dinner,
+                ),
+              ),
+
+              const SizedBox(
+                height:
+                AppSizes
+                    .spaceXL,
+              ),
+
               SizedBox(
-                width: double.infinity,
-                height: AppSizes.buttonHeight,
-                child: ElevatedButton(
-                  onPressed: _openShoppingListPage,
-                  child: const Text('Generate Shopping List'),
+                width:
+                double.infinity,
+                height:
+                AppSizes
+                    .buttonHeight,
+                child:
+                ElevatedButton(
+                  onPressed:
+                  _openShoppingListPage,
+                  child:
+                  const Text(
+                    'Generate Shopping List',
+                  ),
                 ),
               ),
-              const SizedBox(height: AppSizes.spaceL),
+
+              const SizedBox(
+                height:
+                AppSizes
+                    .spaceL,
+              ),
             ],
           ),
         ),

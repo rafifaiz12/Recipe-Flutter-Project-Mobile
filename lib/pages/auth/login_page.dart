@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:siresep/app/routes.dart';
 import 'package:siresep/core/constants/app_colors.dart';
 import 'package:siresep/core/constants/app_sizes.dart';
@@ -7,6 +8,8 @@ import 'package:siresep/core/constants/app_text_styles.dart';
 import 'package:siresep/core/utils/validators.dart';
 import 'package:siresep/core/widgets/custom_text_field.dart';
 import 'package:siresep/core/widgets/primary_button.dart';
+import 'package:siresep/providers/auth_provider.dart';
+import 'package:siresep/providers/profile_provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -18,8 +21,11 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _emailController =
+  TextEditingController();
+
+  final TextEditingController _passwordController =
+  TextEditingController();
 
   bool _obscurePassword = true;
 
@@ -27,21 +33,45 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+
     super.dispose();
   }
 
-  void _goToMainPage() {
-    if (_formKey.currentState!.validate()) {
-      Navigator.pushReplacementNamed(context, AppRoutes.main);
+  Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
     }
+
+    final authProvider = context.read<AuthProvider>();
+
+    await authProvider.login(
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+    );
+
+    await context
+        .read<ProfileProvider>()
+        .loadProfile();
+
+    if (!mounted) return;
+
+    Navigator.pushReplacementNamed(
+      context,
+      AppRoutes.main,
+    );
   }
 
   void _goToRegisterPage() {
-    Navigator.pushNamed(context, AppRoutes.register);
+    Navigator.pushNamed(
+      context,
+      AppRoutes.register,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+
     return Scaffold(
       backgroundColor: AppColors.card,
       body: SafeArea(
@@ -69,13 +99,6 @@ class _LoginPageState extends State<LoginPage> {
                           fontSize: 54,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 1,
-                          shadows: const [
-                            Shadow(
-                              color: Colors.black26,
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
                         ),
                       ),
                     ),
@@ -107,7 +130,8 @@ class _LoginPageState extends State<LoginPage> {
                         suffixIcon: IconButton(
                           onPressed: () {
                             setState(() {
-                              _obscurePassword = !_obscurePassword;
+                              _obscurePassword =
+                              !_obscurePassword;
                             });
                           },
                           icon: Icon(
@@ -120,25 +144,36 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: AppSizes.spaceL),
                       PrimaryButton(
-                        text: AppStrings.login.toUpperCase(),
-                        onPressed: _goToMainPage,
-                        backgroundColor: AppColors.secondary,
+                        text: authProvider.isLoading
+                            ? 'LOADING...'
+                            : AppStrings.login.toUpperCase(),
+                        onPressed: authProvider.isLoading
+                            ? null
+                            : _login,
+                        backgroundColor:
+                        AppColors.secondary,
                       ),
                       const SizedBox(height: AppSizes.spaceM),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment:
+                        MainAxisAlignment.center,
                         children: [
                           Text(
                             'Don\'t have an account? ',
-                            style: AppTextStyles.bodySecondary,
+                            style:
+                            AppTextStyles.bodySecondary,
                           ),
                           GestureDetector(
                             onTap: _goToRegisterPage,
                             child: Text(
                               'Sign up',
-                              style: AppTextStyles.bodySecondary.copyWith(
-                                color: AppColors.secondary,
-                                fontWeight: FontWeight.w700,
+                              style: AppTextStyles
+                                  .bodySecondary
+                                  .copyWith(
+                                color:
+                                AppColors.secondary,
+                                fontWeight:
+                                FontWeight.w700,
                               ),
                             ),
                           ),
