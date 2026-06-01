@@ -14,6 +14,35 @@ import 'package:siresep/models/recipe_model.dart';
 import 'package:siresep/providers/recipe_provider.dart';
 import 'package:siresep/providers/review_provider.dart';
 
+const String _fallbackRecipeImage =
+    'https://dummyimage.com/600x400/e5e7eb/6b7280&text=SiResep';
+
+String _safeRecipeImage(String imageUrl) {
+  final trimmed = imageUrl.trim();
+
+  if (trimmed.isEmpty) {
+    return _fallbackRecipeImage;
+  }
+
+  return trimmed;
+}
+
+String _recipeMetaText(RecipeModel recipe, double rating) {
+  final parts = <String>[];
+
+  if (recipe.cookTimeMinutes > 0) {
+    parts.add('${recipe.cookTimeMinutes} min');
+  }
+
+  if (recipe.difficulty.trim().isNotEmpty) {
+    parts.add(recipe.difficulty);
+  }
+
+  parts.add('⭐ ${rating.toStringAsFixed(1)}');
+
+  return parts.join(' • ');
+}
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -22,8 +51,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final TextEditingController _searchController =
-  TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   bool _showSuggestions = false;
 
@@ -44,9 +72,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _onSearchChanged(String value) async {
-    await context
-        .read<RecipeProvider>()
-        .searchRecipes(value);
+    await context.read<RecipeProvider>().searchRecipes(value);
 
     setState(() {
       _showSuggestions = value.trim().isNotEmpty;
@@ -60,340 +86,232 @@ class _HomePageState extends State<HomePage> {
       _showSuggestions = false;
     });
 
-    Navigator.pushNamed(
-      context,
-      AppRoutes.recipeDetail,
-      arguments: recipeId,
-    );
+    Navigator.pushNamed(context, AppRoutes.recipeDetail, arguments: recipeId);
   }
 
   void _goToProfile() {
-    Navigator.pushNamed(
-      context,
-      AppRoutes.profile,
-    );
+    Navigator.pushNamed(context, AppRoutes.profile);
   }
 
   void _goToAiChat() {
-    Navigator.pushNamed(
-      context,
-      AppRoutes.aiChat,
-    );
+    Navigator.pushNamed(context, AppRoutes.aiChat);
   }
 
   @override
   Widget build(BuildContext context) {
-    final recipeProvider =
-    context.watch<RecipeProvider>();
+    final recipeProvider = context.watch<RecipeProvider>();
 
-    final trendingRecipes =
-        recipeProvider.trendingRecipes;
+    final trendingRecipes = recipeProvider.trendingRecipes;
 
-    final recommendedRecipes =
-        recipeProvider.recipes;
+    final recommendedRecipes = recipeProvider.recipes;
 
-    final searchResults =
-        recipeProvider.searchResults;
+    final searchResults = recipeProvider.searchResults;
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: recipeProvider.isLoading
-            ? const Center(
-          child: CircularProgressIndicator(),
-        )
+            ? const Center(child: CircularProgressIndicator())
             : GestureDetector(
-          onTap: () {
-            FocusScope.of(context).unfocus();
+                onTap: () {
+                  FocusScope.of(context).unfocus();
 
-            setState(() {
-              _showSuggestions = false;
-            });
-          },
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(
-              AppSizes.paddingL,
-            ),
-            child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment:
-                        CrossAxisAlignment
-                            .start,
+                  setState(() {
+                    _showSuggestions = false;
+                  });
+                },
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(AppSizes.paddingL),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         children: [
-                          Text(
-                            'Discover',
-                            style:
-                            AppTextStyles.h1
-                                .copyWith(
-                              fontSize: 34,
-                              fontWeight:
-                              FontWeight
-                                  .w800,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Discover',
+                                  style: AppTextStyles.h1.copyWith(
+                                    fontSize: 34,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                const SizedBox(height: AppSizes.spaceS),
+                                Text(
+                                  'Hi, What do you want to cook today?',
+                                  style: AppTextStyles.bodySecondary.copyWith(
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(
-                            height:
-                            AppSizes.spaceS,
-                          ),
-                          Text(
-                            'Hi, What do you want to cook today?',
-                            style:
-                            AppTextStyles
-                                .bodySecondary
-                                .copyWith(
-                              fontSize: 16,
+                          GestureDetector(
+                            onTap: _goToProfile,
+                            child: Container(
+                              height: 56,
+                              width: 56,
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withValues(
+                                  alpha: 0.14,
+                                ),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.person,
+                                color: AppColors.primary,
+                                size: 28,
+                              ),
                             ),
                           ),
                         ],
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: _goToProfile,
-                      child: Container(
-                        height: 56,
-                        width: 56,
-                        decoration:
-                        BoxDecoration(
-                          color: AppColors
-                              .primary
-                              .withValues(
-                            alpha: 0.14,
-                          ),
-                          shape:
-                          BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.person,
-                          color: AppColors
-                              .primary,
-                          size: 28,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: AppSizes.spaceL,
-                ),
+                      const SizedBox(height: AppSizes.spaceL),
 
-                Column(
-                  children: [
-                    TextField(
-                      controller:
-                      _searchController,
-                      onChanged:
-                      _onSearchChanged,
-                      decoration:
-                      InputDecoration(
-                        hintText:
-                        'Search recipes...',
-                        hintStyle:
-                        AppTextStyles
-                            .bodySecondary
-                            .copyWith(
-                          fontSize: 16,
-                        ),
-                        prefixIcon:
-                        const Icon(
-                          Icons.search,
-                          color: AppColors
-                              .textSecondary,
-                        ),
-                        fillColor:
-                        Colors.white,
-                        filled: true,
-                        enabledBorder:
-                        OutlineInputBorder(
-                          borderRadius:
-                          BorderRadius.circular(
-                            AppSizes.radiusXL,
-                          ),
-                          borderSide:
-                          const BorderSide(
-                            color: AppColors
-                                .border,
-                          ),
-                        ),
-                        focusedBorder:
-                        OutlineInputBorder(
-                          borderRadius:
-                          BorderRadius.circular(
-                            AppSizes.radiusXL,
-                          ),
-                          borderSide:
-                          const BorderSide(
-                            color: AppColors
-                                .primary,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    if (_showSuggestions &&
-                        searchResults
-                            .isNotEmpty)
-                      Container(
-                        margin:
-                        const EdgeInsets.only(
-                          top:
-                          AppSizes.spaceS,
-                        ),
-                        decoration:
-                        BoxDecoration(
-                          color: Colors.white,
-                          borderRadius:
-                          BorderRadius.circular(
-                            AppSizes.radiusM,
-                          ),
-                          border: Border.all(
-                            color: AppColors
-                                .border,
-                          ),
-                        ),
-                        child:
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics:
-                          const NeverScrollableScrollPhysics(),
-                          itemCount:
-                          searchResults
-                              .length >
-                              5
-                              ? 5
-                              : searchResults
-                              .length,
-                          separatorBuilder:
-                              (_, __) =>
-                          const Divider(
-                            height: 1,
-                          ),
-                          itemBuilder:
-                              (
-                              context,
-                              index,
-                              ) {
-                            final recipe =
-                            searchResults[
-                            index];
-
-                            return ListTile(
-                              title: Text(
-                                recipe.title,
+                      Column(
+                        children: [
+                          TextField(
+                            controller: _searchController,
+                            onChanged: _onSearchChanged,
+                            decoration: InputDecoration(
+                              hintText: 'Search recipes...',
+                              hintStyle: AppTextStyles.bodySecondary.copyWith(
+                                fontSize: 16,
                               ),
-                              subtitle:
-                              Text(
-                                '${recipe.cookTimeMinutes} min • ${recipe.difficulty}',
+                              prefixIcon: const Icon(
+                                Icons.search,
+                                color: AppColors.textSecondary,
                               ),
-                              onTap: () =>
-                                  _goToRecipeDetail(
-                                    recipe.id,
-                                  ),
+                              fillColor: Colors.white,
+                              filled: true,
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppSizes.radiusXL,
+                                ),
+                                borderSide: const BorderSide(
+                                  color: AppColors.border,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppSizes.radiusXL,
+                                ),
+                                borderSide: const BorderSide(
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          if (_showSuggestions && searchResults.isNotEmpty)
+                            Container(
+                              margin: const EdgeInsets.only(
+                                top: AppSizes.spaceS,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(
+                                  AppSizes.radiusM,
+                                ),
+                                border: Border.all(color: AppColors.border),
+                              ),
+                              child: ListView.separated(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: searchResults.length > 5
+                                    ? 5
+                                    : searchResults.length,
+                                separatorBuilder: (_, __) =>
+                                    const Divider(height: 1),
+                                itemBuilder: (context, index) {
+                                  final recipe = searchResults[index];
+
+                                  return ListTile(
+                                    title: Text(recipe.title),
+                                    subtitle: Text(
+                                      '${recipe.cookTimeMinutes} min • ${recipe.difficulty}',
+                                    ),
+                                    onTap: () => _goToRecipeDetail(recipe.id),
+                                  );
+                                },
+                              ),
+                            ),
+                        ],
+                      ),
+
+                      const SizedBox(height: AppSizes.spaceL),
+
+                      _AiRecipeAssistantCard(onTap: _goToAiChat),
+
+                      const SizedBox(height: AppSizes.spaceXL),
+
+                      if (trendingRecipes.isNotEmpty) ...[
+                        const SectionTitle(title: 'Trending Recipes'),
+                        const SizedBox(height: AppSizes.spaceM),
+                        SizedBox(
+                          height: 260,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: trendingRecipes.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(width: AppSizes.spaceM),
+                            itemBuilder: (context, index) {
+                              final recipe = trendingRecipes[index];
+
+                              return SizedBox(
+                                width: 300,
+                                child: _HorizontalRecipeCard(
+                                  recipe: recipe,
+                                  onTap: () => _goToRecipeDetail(recipe.id),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: AppSizes.spaceXL),
+                      ],
+
+                      const SectionTitle(title: 'Recommended For You'),
+
+                      const SizedBox(height: AppSizes.spaceM),
+
+                      if (recommendedRecipes.isEmpty)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(AppSizes.paddingL),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(
+                              AppSizes.radiusL,
+                            ),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: Text(
+                            'Belum ada resep yang tersedia.',
+                            style: AppTextStyles.bodySecondary,
+                            textAlign: TextAlign.center,
+                          ),
+                        )
+                      else
+                        Column(
+                          children: recommendedRecipes.map((recipe) {
+                            return Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: AppSizes.spaceM,
+                              ),
+                              child: _VerticalRecipeCard(
+                                recipe: recipe,
+                                onTap: () => _goToRecipeDetail(recipe.id),
+                              ),
                             );
-                          },
+                          }).toList(),
                         ),
-                      ),
-                  ],
-                ),
-
-                const SizedBox(
-                  height: AppSizes.spaceL,
-                ),
-
-                _AiRecipeAssistantCard(
-                  onTap: _goToAiChat,
-                ),
-
-                const SizedBox(
-                  height: AppSizes.spaceXL,
-                ),
-
-                const SectionTitle(
-                  title: 'Trending Recipes',
-                ),
-
-                const SizedBox(
-                  height: AppSizes.spaceM,
-                ),
-
-                SizedBox(
-                  height: 260,
-                  child: ListView.separated(
-                    scrollDirection:
-                    Axis.horizontal,
-                    itemCount:
-                    trendingRecipes.length,
-                    separatorBuilder:
-                        (_, __) =>
-                    const SizedBox(
-                      width:
-                      AppSizes.spaceM,
-                    ),
-                    itemBuilder:
-                        (context, index) {
-                      final recipe =
-                      trendingRecipes[
-                      index];
-
-                      return SizedBox(
-                        width: 300,
-                        child:
-                        _HorizontalRecipeCard(
-                          recipe: recipe,
-                          onTap: () =>
-                              _goToRecipeDetail(
-                                recipe.id,
-                              ),
-                        ),
-                      );
-                    },
+                    ],
                   ),
                 ),
-
-                const SizedBox(
-                  height: AppSizes.spaceXL,
-                ),
-
-                const SectionTitle(
-                  title:
-                  'Recommended For You',
-                ),
-
-                const SizedBox(
-                  height: AppSizes.spaceM,
-                ),
-
-                Column(
-                  children:
-                  recommendedRecipes.map(
-                        (recipe) {
-                      return Padding(
-                        padding:
-                        const EdgeInsets.only(
-                          bottom:
-                          AppSizes.spaceM,
-                        ),
-                        child:
-                        _VerticalRecipeCard(
-                          recipe: recipe,
-                          onTap: () =>
-                              _goToRecipeDetail(
-                                recipe.id,
-                              ),
-                        ),
-                      );
-                    },
-                  ).toList(),
-                ),
-              ],
-            ),
-          ),
-        ),
+              ),
       ),
     );
   }
@@ -402,9 +320,7 @@ class _HomePageState extends State<HomePage> {
 class _AiRecipeAssistantCard extends StatelessWidget {
   final VoidCallback onTap;
 
-  const _AiRecipeAssistantCard({
-    required this.onTap,
-  });
+  const _AiRecipeAssistantCard({required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -412,14 +328,10 @@ class _AiRecipeAssistantCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(
-          AppSizes.paddingL,
-        ),
+        padding: const EdgeInsets.all(AppSizes.paddingL),
         decoration: BoxDecoration(
           color: AppColors.primary,
-          borderRadius: BorderRadius.circular(
-            AppSizes.radiusXL,
-          ),
+          borderRadius: BorderRadius.circular(AppSizes.radiusXL),
         ),
         child: Row(
           children: [
@@ -427,9 +339,7 @@ class _AiRecipeAssistantCard extends StatelessWidget {
               height: 54,
               width: 54,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(
-                  alpha: 0.18,
-                ),
+                color: Colors.white.withValues(alpha: 0.18),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -438,36 +348,24 @@ class _AiRecipeAssistantCard extends StatelessWidget {
                 size: 28,
               ),
             ),
-            const SizedBox(
-              width: AppSizes.spaceM,
-            ),
+            const SizedBox(width: AppSizes.spaceM),
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Ask AI Recipe',
-                    style: AppTextStyles.h2
-                        .copyWith(
+                    style: AppTextStyles.h2.copyWith(
                       color: Colors.white,
                       fontSize: 20,
-                      fontWeight:
-                      FontWeight.w800,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(
-                    height: AppSizes.spaceXS,
-                  ),
+                  const SizedBox(height: AppSizes.spaceXS),
                   Text(
                     'Masukkan bahan yang tersedia dan dapatkan rekomendasi resep.',
-                    style: AppTextStyles
-                        .bodySecondary
-                        .copyWith(
-                      color: Colors.white
-                          .withValues(
-                        alpha: 0.88,
-                      ),
+                    style: AppTextStyles.bodySecondary.copyWith(
+                      color: Colors.white.withValues(alpha: 0.88),
                     ),
                   ),
                 ],
@@ -485,71 +383,45 @@ class _HorizontalRecipeCard extends StatelessWidget {
 
   final VoidCallback onTap;
 
-  const _HorizontalRecipeCard({
-    required this.recipe,
-    required this.onTap,
-  });
+  const _HorizontalRecipeCard({required this.recipe, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final reviewProvider =
-    context.watch<
-        ReviewProvider>();
+    final reviewProvider = context.watch<ReviewProvider>();
 
-    final rating =
-    reviewProvider
-        .averageRating(
-      recipe.id,
-    );
+    final rating = reviewProvider.averageRating(recipe.id);
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(
-            AppSizes.radiusXL,
-          ),
+          borderRadius: BorderRadius.circular(AppSizes.radiusXL),
           image: DecorationImage(
-            image: NetworkImage(recipe.imageUrl),
+            image: NetworkImage(_safeRecipeImage(recipe.imageUrl)),
             fit: BoxFit.cover,
           ),
         ),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(
-              AppSizes.radiusXL,
-            ),
+            borderRadius: BorderRadius.circular(AppSizes.radiusXL),
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.black.withValues(
-                  alpha: 0.05,
-                ),
-                Colors.black.withValues(
-                  alpha: 0.65,
-                ),
+                Colors.black.withValues(alpha: 0.05),
+                Colors.black.withValues(alpha: 0.65),
               ],
             ),
           ),
-          padding: const EdgeInsets.all(
-            AppSizes.paddingM,
-          ),
+          padding: const EdgeInsets.all(AppSizes.paddingM),
           child: Column(
-            crossAxisAlignment:
-            CrossAxisAlignment.start,
-            mainAxisAlignment:
-            MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Text(
-                '${recipe.cookTimeMinutes} min • ${recipe.difficulty} • ⭐ ${rating.toStringAsFixed(1)}',
-                style:
-                AppTextStyles.caption.copyWith(
-                  color: Colors.white,
-                ),
+                _recipeMetaText(recipe, rating),
+                style: AppTextStyles.caption.copyWith(color: Colors.white),
               ),
-              const SizedBox(
-                height: AppSizes.spaceS,
-              ),
+              const SizedBox(height: AppSizes.spaceS),
               Text(
                 recipe.title,
                 maxLines: 2,
@@ -573,72 +445,46 @@ class _VerticalRecipeCard extends StatelessWidget {
 
   final VoidCallback onTap;
 
-  const _VerticalRecipeCard({
-    required this.recipe,
-    required this.onTap,
-  });
+  const _VerticalRecipeCard({required this.recipe, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final reviewProvider =
-    context.watch<
-        ReviewProvider>();
+    final reviewProvider = context.watch<ReviewProvider>();
 
-    final rating =
-    reviewProvider
-        .averageRating(
-      recipe.id,
-    );
+    final rating = reviewProvider.averageRating(recipe.id);
     return GestureDetector(
       onTap: onTap,
       child: Container(
         height: 250,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(
-            AppSizes.radiusXL,
-          ),
+          borderRadius: BorderRadius.circular(AppSizes.radiusXL),
           image: DecorationImage(
-            image: NetworkImage(recipe.imageUrl),
+            image: NetworkImage(_safeRecipeImage(recipe.imageUrl)),
             fit: BoxFit.cover,
           ),
         ),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(
-              AppSizes.radiusXL,
-            ),
+            borderRadius: BorderRadius.circular(AppSizes.radiusXL),
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.black.withValues(
-                  alpha: 0.05,
-                ),
-                Colors.black.withValues(
-                  alpha: 0.65,
-                ),
+                Colors.black.withValues(alpha: 0.05),
+                Colors.black.withValues(alpha: 0.65),
               ],
             ),
           ),
-          padding: const EdgeInsets.all(
-            AppSizes.paddingM,
-          ),
+          padding: const EdgeInsets.all(AppSizes.paddingM),
           child: Column(
-            crossAxisAlignment:
-            CrossAxisAlignment.start,
-            mainAxisAlignment:
-            MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Text(
-                '${recipe.cookTimeMinutes} min • ${recipe.difficulty} • ⭐ ${rating.toStringAsFixed(1)}',
-                style:
-                AppTextStyles.caption.copyWith(
-                  color: Colors.white,
-                ),
+                _recipeMetaText(recipe, rating),
+                style: AppTextStyles.caption.copyWith(color: Colors.white),
               ),
-              const SizedBox(
-                height: AppSizes.spaceS,
-              ),
+              const SizedBox(height: AppSizes.spaceS),
               Text(
                 recipe.title,
                 maxLines: 2,

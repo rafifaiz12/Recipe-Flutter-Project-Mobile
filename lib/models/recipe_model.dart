@@ -1,6 +1,20 @@
 import 'package:siresep/core/utils/model_parsers.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'ingredient_model.dart';
+
+DateTime _parseRecipeDate(dynamic value) {
+  if (value == null) return DateTime.now();
+
+  if (value is Timestamp) {
+    return value.toDate();
+  }
+
+  if (value is DateTime) {
+    return value;
+  }
+
+  return ModelParsers.parseDateTime(value);
+}
 
 class RecipeModel {
   final String id;
@@ -63,90 +77,70 @@ class RecipeModel {
     required this.updatedAt,
   });
 
-  factory RecipeModel.fromMap(
-      Map<String, dynamic> map,
-      ) {
+  factory RecipeModel.fromMap(Map<String, dynamic> map) {
+    final categories = map['categories'];
+
+    String categoryName = map['categoryName']?.toString() ?? '';
+
+    if (categoryName.isEmpty && categories is List && categories.isNotEmpty) {
+      categoryName = categories.first.toString();
+    }
+
+    final rawIngredients = map['ingredients'];
+    final parsedIngredients = <IngredientModel>[];
+
+    if (rawIngredients is List) {
+      for (final item in rawIngredients) {
+        if (item is Map) {
+          parsedIngredients.add(
+            IngredientModel.fromMap(Map<String, dynamic>.from(item)),
+          );
+        } else {
+          parsedIngredients.add(
+            IngredientModel.fromMap({
+              'name': item.toString(),
+              'quantity': '',
+              'unit': '',
+            }),
+          );
+        }
+      }
+    }
+
+    final rawInstructions = map['instructions'] ?? map['steps'];
+    final instructions = <String>[];
+
+    if (rawInstructions is List) {
+      for (final item in rawInstructions) {
+        instructions.add(item.toString());
+      }
+    }
+
+    final rawRating = map['ratingAverage'] ?? map['rating'];
+    final ratingAverage = rawRating == '—'
+        ? 0.0
+        : ModelParsers.parseDouble(rawRating);
+
     return RecipeModel(
-      id: map['id'] ?? '',
-
-      title: map['title'] ?? '',
-
-      description:
-      map['description'] ?? '',
-
-      imageUrl: map['imageUrl'] ?? '',
-
-      categoryId:
-      map['categoryId'] ?? '',
-
-      categoryName:
-      map['categoryName'] ?? '',
-
-      cuisine: map['cuisine'] ?? '',
-
-      cookTimeMinutes:
-      ModelParsers.parseInt(
-        map['cookTimeMinutes'],
-      ),
-
-      difficulty:
-      map['difficulty'] ?? '',
-
-      ratingAverage:
-      ModelParsers.parseDouble(
-        map['ratingAverage'],
-      ),
-
-      reviewCount:
-      ModelParsers.parseInt(
-        map['reviewCount'],
-      ),
-
-      servings:
-      ModelParsers.parseInt(
-        map['servings'],
-      ),
-
-      calories:
-      ModelParsers.parseInt(
-        map['calories'],
-      ),
-
-      isTrending:
-      ModelParsers.parseBool(
-        map['isTrending'],
-      ),
-
-      ingredients:
-      (map['ingredients'] as List?)
-          ?.map(
-            (item) =>
-            IngredientModel.fromMap(
-              Map<String, dynamic>.from(
-                item,
-              ),
-            ),
-      )
-          .toList() ??
-          [],
-
-      instructions:
-      List<String>.from(
-        map['instructions'] ?? [],
-      ),
-
-      createdBy:
-      map['createdBy'] ?? '',
-
-      createdAt:
-      ModelParsers.parseDateTime(
-        map['createdAt'],
-      ),
-
-      updatedAt:
-      ModelParsers.parseDateTime(
-        map['updatedAt'],
-      ),
+      id: map['id']?.toString() ?? '',
+      title: map['title']?.toString() ?? '',
+      description: map['description']?.toString() ?? '',
+      imageUrl: map['imageUrl']?.toString() ?? '',
+      categoryId: map['categoryId']?.toString() ?? '',
+      categoryName: categoryName,
+      cuisine: map['cuisine']?.toString() ?? '',
+      cookTimeMinutes: ModelParsers.parseInt(map['cookTimeMinutes']),
+      difficulty: map['difficulty']?.toString() ?? '',
+      ratingAverage: ratingAverage,
+      reviewCount: ModelParsers.parseInt(map['reviewCount']),
+      servings: ModelParsers.parseInt(map['servings']),
+      calories: ModelParsers.parseInt(map['calories']),
+      isTrending: ModelParsers.parseBool(map['isTrending']),
+      ingredients: parsedIngredients,
+      instructions: instructions,
+      createdBy: map['createdBy']?.toString() ?? '',
+      createdAt: _parseRecipeDate(map['createdAt']),
+      updatedAt: _parseRecipeDate(map['updatedAt']),
     );
   }
 
@@ -166,13 +160,11 @@ class RecipeModel {
 
       'cuisine': cuisine,
 
-      'cookTimeMinutes':
-      cookTimeMinutes,
+      'cookTimeMinutes': cookTimeMinutes,
 
       'difficulty': difficulty,
 
-      'ratingAverage':
-      ratingAverage,
+      'ratingAverage': ratingAverage,
 
       'reviewCount': reviewCount,
 
@@ -182,10 +174,7 @@ class RecipeModel {
 
       'isTrending': isTrending,
 
-      'ingredients':
-      ingredients
-          .map((e) => e.toMap())
-          .toList(),
+      'ingredients': ingredients.map((e) => e.toMap()).toList(),
 
       'instructions': instructions,
 
@@ -223,69 +212,39 @@ class RecipeModel {
 
       title: title ?? this.title,
 
-      description:
-      description ??
-          this.description,
+      description: description ?? this.description,
 
-      imageUrl:
-      imageUrl ?? this.imageUrl,
+      imageUrl: imageUrl ?? this.imageUrl,
 
-      categoryId:
-      categoryId ??
-          this.categoryId,
+      categoryId: categoryId ?? this.categoryId,
 
-      categoryName:
-      categoryName ??
-          this.categoryName,
+      categoryName: categoryName ?? this.categoryName,
 
-      cuisine:
-      cuisine ?? this.cuisine,
+      cuisine: cuisine ?? this.cuisine,
 
-      cookTimeMinutes:
-      cookTimeMinutes ??
-          this.cookTimeMinutes,
+      cookTimeMinutes: cookTimeMinutes ?? this.cookTimeMinutes,
 
-      difficulty:
-      difficulty ??
-          this.difficulty,
+      difficulty: difficulty ?? this.difficulty,
 
-      ratingAverage:
-      ratingAverage ??
-          this.ratingAverage,
+      ratingAverage: ratingAverage ?? this.ratingAverage,
 
-      reviewCount:
-      reviewCount ??
-          this.reviewCount,
+      reviewCount: reviewCount ?? this.reviewCount,
 
-      servings:
-      servings ?? this.servings,
+      servings: servings ?? this.servings,
 
-      calories:
-      calories ?? this.calories,
+      calories: calories ?? this.calories,
 
-      isTrending:
-      isTrending ??
-          this.isTrending,
+      isTrending: isTrending ?? this.isTrending,
 
-      ingredients:
-      ingredients ??
-          this.ingredients,
+      ingredients: ingredients ?? this.ingredients,
 
-      instructions:
-      instructions ??
-          this.instructions,
+      instructions: instructions ?? this.instructions,
 
-      createdBy:
-      createdBy ??
-          this.createdBy,
+      createdBy: createdBy ?? this.createdBy,
 
-      createdAt:
-      createdAt ??
-          this.createdAt,
+      createdAt: createdAt ?? this.createdAt,
 
-      updatedAt:
-      updatedAt ??
-          this.updatedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }

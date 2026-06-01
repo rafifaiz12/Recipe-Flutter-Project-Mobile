@@ -19,43 +19,22 @@ import 'package:siresep/providers/review_provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()..restoreSession()),
+        ChangeNotifierProvider(create: (_) => RecipeProvider()),
+        ChangeNotifierProvider(create: (_) => FavoriteProvider()),
+        ChangeNotifierProvider(create: (_) => RecipeDetailProvider()),
         ChangeNotifierProvider(
-          create: (_) => AuthProvider(),
+          create: (_) => ShoppingListProvider()..loadItems(),
         ),
-        ChangeNotifierProvider(
-          create: (_) => RecipeProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => FavoriteProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => RecipeDetailProvider(),
-        ),
-        ChangeNotifierProvider(
-          create:
-              (_) =>
-          ShoppingListProvider()
-            ..loadItems(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => MealPlanProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => ProfileProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => AiChatProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => ReviewProvider(),
-        ),
+        ChangeNotifierProvider(create: (_) => MealPlanProvider()),
+        ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => AiChatProvider()),
+        ChangeNotifierProvider(create: (_) => ReviewProvider()),
       ],
       child: const SiResepApp(),
     ),

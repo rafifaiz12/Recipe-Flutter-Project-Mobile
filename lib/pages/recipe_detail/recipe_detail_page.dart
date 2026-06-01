@@ -24,17 +24,13 @@ import 'package:siresep/pages/recipe_detail/widgets/recipe_hero_section.dart';
 import 'package:siresep/pages/recipe_detail/widgets/reviews_section.dart';
 
 class RecipeDetailPage extends StatefulWidget {
-  const RecipeDetailPage({
-    super.key,
-  });
+  const RecipeDetailPage({super.key});
 
   @override
-  State<RecipeDetailPage> createState() =>
-      _RecipeDetailPageState();
+  State<RecipeDetailPage> createState() => _RecipeDetailPageState();
 }
 
-class _RecipeDetailPageState
-    extends State<RecipeDetailPage> {
+class _RecipeDetailPageState extends State<RecipeDetailPage> {
   bool _isInitialized = false;
 
   @override
@@ -45,21 +41,17 @@ class _RecipeDetailPageState
       return;
     }
 
-    final String recipeId =
-        ModalRoute.of(context)
-            ?.settings
-            .arguments
-        as String? ??
-            'recipe_001';
+    final String? recipeId =
+        ModalRoute.of(context)?.settings.arguments as String?;
+
+    if (recipeId == null || recipeId.isEmpty) {
+      return;
+    }
 
     Future.microtask(() async {
-      await context
-          .read<RecipeDetailProvider>()
-          .loadRecipe(recipeId);
+      await context.read<RecipeDetailProvider>().loadRecipe(recipeId);
 
-      await context
-          .read<ReviewProvider>()
-          .loadRecipeReviews(recipeId);
+      await context.read<ReviewProvider>().loadRecipeReviews(recipeId);
     });
 
     _isInitialized = true;
@@ -72,21 +64,13 @@ class _RecipeDetailPageState
       return;
     }
 
-    Navigator.pushReplacementNamed(
-      context,
-      AppRoutes.home,
-    );
+    Navigator.pushReplacementNamed(context, AppRoutes.home);
   }
 
-  Future<void>
-  _openWriteReviewModal() async {
-    final provider =
-    context.read<
-        RecipeDetailProvider>();
+  Future<void> _openWriteReviewModal() async {
+    final provider = context.read<RecipeDetailProvider>();
 
-    final reviewProvider =
-    context.read<
-        ReviewProvider>();
+    final reviewProvider = context.read<ReviewProvider>();
 
     final recipe = provider.recipe;
 
@@ -95,48 +79,30 @@ class _RecipeDetailPageState
     }
 
     final Map<String, dynamic>? result =
-    await showModalBottomSheet<
-        Map<String, dynamic>>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor:
-      Colors.transparent,
-      builder: (context) {
-        return AddReviewPage(
-          recipeTitle:
-          recipe.title,
+        await showModalBottomSheet<Map<String, dynamic>>(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) {
+            return AddReviewPage(recipeTitle: recipe.title);
+          },
         );
-      },
-    );
 
     if (result == null) {
       return;
     }
 
-    final int? rating =
-    result['rating']
-    as int?;
+    final int? rating = result['rating'] as int?;
 
-    final String? comment =
-    result['comment']
-    as String?;
+    final String? comment = result['comment'] as String?;
 
-    if (rating == null ||
-        rating == 0 ||
-        comment == null ||
-        comment.isEmpty) {
+    if (rating == null || rating == 0 || comment == null || comment.isEmpty) {
       return;
     }
 
-    await provider.addReview(
-      rating: rating,
-      comment: comment,
-    );
+    await provider.addReview(rating: rating, comment: comment);
 
-    await reviewProvider
-        .loadRecipeReviews(
-      recipe.id,
-    );
+    await reviewProvider.loadRecipeReviews(recipe.id);
 
     if (!mounted) {
       return;
@@ -144,113 +110,70 @@ class _RecipeDetailPageState
 
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Review submitted',
-        ),
-      ),
-    );
+    ).showSnackBar(const SnackBar(content: Text('Review submitted')));
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider =
-    context.watch<
-        RecipeDetailProvider>();
+    final provider = context.watch<RecipeDetailProvider>();
 
-    final favoriteProvider =
-    context.watch<
-        FavoriteProvider>();
+    final favoriteProvider = context.watch<FavoriteProvider>();
 
-    final shoppingListProvider =
-    context.watch<
-        ShoppingListProvider>();
+    final shoppingListProvider = context.watch<ShoppingListProvider>();
 
-    final reviewProvider =
-    context.watch<
-        ReviewProvider>();
+    final reviewProvider = context.watch<ReviewProvider>();
 
-    final RecipeModel? recipe =
-        provider.recipe;
+    final RecipeModel? recipe = provider.recipe;
 
-    if (provider.isLoading ||
-        recipe == null) {
-      return const Scaffold(
+    if (provider.isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (recipe == null) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
         body: Center(
-          child:
-          CircularProgressIndicator(),
+          child: Text(
+            provider.errorMessage ?? 'Resep tidak ditemukan',
+            style: AppTextStyles.bodySecondary,
+          ),
         ),
       );
     }
 
-    final List<ReviewModel>
-    reviews =
-        reviewProvider.reviews;
+    final List<ReviewModel> reviews = reviewProvider.reviews;
 
-    final double averageRating =
-    reviewProvider
-        .averageRating(
-      recipe.id,
-    );
+    final double averageRating = reviewProvider.averageRating(recipe.id);
 
-    final int totalReviews =
-    reviewProvider
-        .totalRecipeReviews(
-      recipe.id,
-    );
+    final int totalReviews = reviewProvider.totalRecipeReviews(recipe.id);
 
     return Scaffold(
-      backgroundColor:
-      AppColors.background,
+      backgroundColor: AppColors.background,
       body: SingleChildScrollView(
         child: Column(
           children: [
             RecipeHeroSection(
-              imageUrl:
-              recipe.imageUrl,
+              imageUrl: recipe.imageUrl.trim().isEmpty
+                  ? 'https://dummyimage.com/600x400/e5e7eb/6b7280&text=SiResep'
+                  : recipe.imageUrl,
               title: recipe.title,
-              description:
-              recipe.description,
-              cookTime: recipe
-                  .cookTimeMinutes
-                  .toString(),
-              difficulty:
-              recipe.difficulty,
-              rating:
-              averageRating
-                  .toStringAsFixed(
-                1,
-              ),
-              totalReviews:
-              totalReviews,
-              isFavorite:
-              favoriteProvider
-                  .isFavorite(
-                recipe.id,
-              ),
-              onBackTap:
-              _goBackToHome,
-              onFavoriteTap:
-                  () async {
-                await favoriteProvider
-                    .toggleFavorite(
-                  recipe.id,
-                );
+              description: recipe.description,
+              cookTime: recipe.cookTimeMinutes.toString(),
+              difficulty: recipe.difficulty,
+              rating: averageRating.toStringAsFixed(1),
+              totalReviews: totalReviews,
+              isFavorite: favoriteProvider.isFavorite(recipe.id),
+              onBackTap: _goBackToHome,
+              onFavoriteTap: () async {
+                await favoriteProvider.toggleFavorite(recipe.id);
 
                 if (!mounted) {
                   return;
                 }
 
-                final isNowFavorite =
-                favoriteProvider
-                    .isFavorite(
-                  recipe.id,
-                );
+                final isNowFavorite = favoriteProvider.isFavorite(recipe.id);
 
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
                       isNowFavorite
@@ -263,93 +186,47 @@ class _RecipeDetailPageState
             ),
 
             Transform.translate(
-              offset:
-              const Offset(
-                0,
-                -AppSizes.spaceXL,
-              ),
+              offset: const Offset(0, -AppSizes.spaceXL),
               child: Container(
-                width:
-                double.infinity,
-                padding:
-                const EdgeInsets
-                    .fromLTRB(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(
                   AppSizes.paddingL,
                   AppSizes.paddingL,
                   AppSizes.paddingL,
                   AppSizes.paddingXL,
                 ),
-                decoration:
-                const BoxDecoration(
-                  color:
-                  AppColors
-                      .background,
-                  borderRadius:
-                  BorderRadius.only(
-                    topLeft:
-                    Radius.circular(
-                      AppSizes
-                          .radiusXL,
-                    ),
-                    topRight:
-                    Radius.circular(
-                      AppSizes
-                          .radiusXL,
-                    ),
+                decoration: const BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(AppSizes.radiusXL),
+                    topRight: Radius.circular(AppSizes.radiusXL),
                   ),
                 ),
                 child: Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment
-                      .start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     IngredientsSection(
-                      ingredients:
-                      recipe
-                          .ingredients,
-                      selectedServings:
-                      provider
-                          .selectedServings,
-                      onDecrease:
-                      provider
-                          .decreaseServings,
-                      onIncrease:
-                      provider
-                          .increaseServings,
-                      scaledQuantityBuilder:
-                          (
-                          quantity,
-                          ) {
-                        return provider
-                            .formatQuantity(
-                          provider
-                              .scaledQuantity(
-                            quantity,
-                          ),
+                      ingredients: recipe.ingredients,
+                      selectedServings: provider.selectedServings,
+                      onDecrease: provider.decreaseServings,
+                      onIncrease: provider.increaseServings,
+                      scaledQuantityBuilder: (quantity) {
+                        return provider.formatQuantity(
+                          provider.scaledQuantity(quantity),
                         );
                       },
                     ),
 
-                    const SizedBox(
-                      height:
-                      AppSizes
-                          .spaceL,
-                    ),
+                    const SizedBox(height: AppSizes.spaceL),
 
                     SizedBox(
                       width: double.infinity,
-                      height:
-                      AppSizes
-                          .buttonHeight,
-                      child:
-                      ElevatedButton(
-                        onPressed:
-                            () async {
-                          await shoppingListProvider
-                              .addRecipeIngredients(
+                      height: AppSizes.buttonHeight,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          await shoppingListProvider.addRecipeIngredients(
                             recipe,
-                            provider
-                                .selectedServings,
+                            provider.selectedServings,
                           );
 
                           if (!mounted) {
@@ -359,15 +236,11 @@ class _RecipeDetailPageState
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder:
-                                  (_) =>
-                              const ShoppingListPage(),
+                              builder: (_) => const ShoppingListPage(),
                             ),
                           );
 
-                          ScaffoldMessenger.of(
-                            context,
-                          ).showSnackBar(
+                          ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
                                 'Ingredients added to shopping list',
@@ -375,59 +248,33 @@ class _RecipeDetailPageState
                             ),
                           );
                         },
-                        style:
-                        ElevatedButton
-                            .styleFrom(
-                          backgroundColor:
-                          AppColors
-                              .primary,
-                          foregroundColor:
-                          Colors.white,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
                           elevation: 0,
-                          shape:
-                          RoundedRectangleBorder(
-                            borderRadius:
-                            BorderRadius.circular(
-                              AppSizes
-                                  .radiusM,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppSizes.radiusM,
                             ),
                           ),
                         ),
                         child: Text(
                           'Add to Shopping List',
-                          style:
-                          AppTextStyles
-                              .button,
+                          style: AppTextStyles.button,
                         ),
                       ),
                     ),
 
-                    const SizedBox(
-                      height:
-                      AppSizes
-                          .spaceXL,
-                    ),
+                    const SizedBox(height: AppSizes.spaceXL),
 
-                    InstructionsSection(
-                      instructions:
-                      recipe
-                          .instructions,
-                    ),
+                    InstructionsSection(instructions: recipe.instructions),
 
-                    const SizedBox(
-                      height:
-                      AppSizes
-                          .spaceXL,
-                    ),
+                    const SizedBox(height: AppSizes.spaceXL),
 
                     ReviewsSection(
-                      reviews:
-                      reviews,
-                      onWriteReviewTap:
-                      _openWriteReviewModal,
-                      formatReviewDate:
-                      provider
-                          .formatReviewDate,
+                      reviews: reviews,
+                      onWriteReviewTap: _openWriteReviewModal,
+                      formatReviewDate: provider.formatReviewDate,
                     ),
                   ],
                 ),

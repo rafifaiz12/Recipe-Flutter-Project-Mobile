@@ -21,11 +21,9 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _emailController =
-  TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
 
-  final TextEditingController _passwordController =
-  TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
 
@@ -44,28 +42,30 @@ class _LoginPageState extends State<LoginPage> {
 
     final authProvider = context.read<AuthProvider>();
 
-    await authProvider.login(
-      email: _emailController.text.trim(),
-      password: _passwordController.text.trim(),
-    );
+    try {
+      await authProvider.login(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
 
-    await context
-        .read<ProfileProvider>()
-        .loadProfile();
+      await context.read<ProfileProvider>().loadProfile();
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    Navigator.pushReplacementNamed(
-      context,
-      AppRoutes.main,
-    );
+      Navigator.pushReplacementNamed(context, AppRoutes.main);
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Login gagal: ${authProvider.errorMessage ?? e}'),
+        ),
+      );
+    }
   }
 
   void _goToRegisterPage() {
-    Navigator.pushNamed(
-      context,
-      AppRoutes.register,
-    );
+    Navigator.pushNamed(context, AppRoutes.register);
   }
 
   @override
@@ -88,9 +88,7 @@ class _LoginPageState extends State<LoginPage> {
                       'https://images.unsplash.com/photo-1512058564366-18510be2db19?q=80&w=1200&auto=format&fit=crop',
                       fit: BoxFit.cover,
                     ),
-                    Container(
-                      color: Colors.black.withValues(alpha: 0.10),
-                    ),
+                    Container(color: Colors.black.withValues(alpha: 0.10)),
                     Center(
                       child: Text(
                         AppStrings.appName,
@@ -130,8 +128,7 @@ class _LoginPageState extends State<LoginPage> {
                         suffixIcon: IconButton(
                           onPressed: () {
                             setState(() {
-                              _obscurePassword =
-                              !_obscurePassword;
+                              _obscurePassword = !_obscurePassword;
                             });
                           },
                           icon: Icon(
@@ -147,33 +144,24 @@ class _LoginPageState extends State<LoginPage> {
                         text: authProvider.isLoading
                             ? 'LOADING...'
                             : AppStrings.login.toUpperCase(),
-                        onPressed: authProvider.isLoading
-                            ? null
-                            : _login,
-                        backgroundColor:
-                        AppColors.secondary,
+                        onPressed: authProvider.isLoading ? null : _login,
+                        backgroundColor: AppColors.secondary,
                       ),
                       const SizedBox(height: AppSizes.spaceM),
                       Row(
-                        mainAxisAlignment:
-                        MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             'Don\'t have an account? ',
-                            style:
-                            AppTextStyles.bodySecondary,
+                            style: AppTextStyles.bodySecondary,
                           ),
                           GestureDetector(
                             onTap: _goToRegisterPage,
                             child: Text(
                               'Sign up',
-                              style: AppTextStyles
-                                  .bodySecondary
-                                  .copyWith(
-                                color:
-                                AppColors.secondary,
-                                fontWeight:
-                                FontWeight.w700,
+                              style: AppTextStyles.bodySecondary.copyWith(
+                                color: AppColors.secondary,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),

@@ -1,236 +1,157 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+
 import 'package:siresep/models/user_model.dart';
 import 'package:siresep/services/auth_service.dart';
 
 class ProfileService {
-  /*
-  |--------------------------------------------------------------------------
-  | GET CURRENT USER
-  |--------------------------------------------------------------------------
-  */
+  final firebase_auth.FirebaseAuth _firebaseAuth =
+      firebase_auth.FirebaseAuth.instance;
+
+  final CollectionReference<Map<String, dynamic>> _usersCollection =
+      FirebaseFirestore.instance.collection('users');
+
+  firebase_auth.User get _currentFirebaseUser {
+    final user = _firebaseAuth.currentUser;
+
+    if (user == null) {
+      throw Exception('User belum login');
+    }
+
+    return user;
+  }
 
   Future<UserModel?> getCurrentUser() async {
-    await Future.delayed(
-      const Duration(
-        milliseconds: 250,
-      ),
-    );
+    final firebaseUser = _firebaseAuth.currentUser;
 
-    return AuthService.currentUser;
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | UPDATE NAME
-  |--------------------------------------------------------------------------
-  */
-
-  Future<UserModel> updateName(
-      String newName,
-      ) async {
-    await Future.delayed(
-      const Duration(
-        milliseconds: 250,
-      ),
-    );
-
-    final user =
-        AuthService.currentUser;
-
-    if (user == null) {
-      throw Exception(
-        'User not found',
-      );
+    if (firebaseUser == null) {
+      return null;
     }
 
-    final updatedUser =
-    user.copyWith(
-      name: newName,
+    final doc = await _usersCollection.doc(firebaseUser.uid).get();
+
+    if (doc.exists && doc.data() != null) {
+      final user = UserModel.fromMap({'id': doc.id, ...doc.data()!});
+
+      AuthService.updateCurrentUser(user);
+
+      return user;
+    }
+
+    final fallbackUser = UserModel(
+      id: firebaseUser.uid,
+      name:
+          firebaseUser.displayName ??
+          firebaseUser.email?.split('@').first ??
+          'User',
+      email: firebaseUser.email ?? '',
+      photoUrl: firebaseUser.photoURL ?? '',
+      role: 'user',
+      dietaryPreferences: [],
+      createdAt: firebaseUser.metadata.creationTime ?? DateTime.now(),
     );
 
-    AuthService.updateCurrentUser(
-      updatedUser,
-    );
+    await _usersCollection.doc(firebaseUser.uid).set({
+      ...fallbackUser.toMap(),
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    AuthService.updateCurrentUser(fallbackUser);
+
+    return fallbackUser;
+  }
+
+  Future<UserModel> updateName(String newName) async {
+    final firebaseUser = _currentFirebaseUser;
+
+    await firebaseUser.updateDisplayName(newName);
+
+    await _usersCollection.doc(firebaseUser.uid).update({
+      'name': newName,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    final updatedUser = (await getCurrentUser())!;
+
+    AuthService.updateCurrentUser(updatedUser);
 
     return updatedUser;
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | UPDATE EMAIL
-  |--------------------------------------------------------------------------
-  */
+  Future<UserModel> updateEmail(String newEmail) async {
+    final firebaseUser = _currentFirebaseUser;
 
-  Future<UserModel> updateEmail(
-      String newEmail,
-      ) async {
-    await Future.delayed(
-      const Duration(
-        milliseconds: 250,
-      ),
-    );
+    await firebaseUser.verifyBeforeUpdateEmail(newEmail);
 
-    final user =
-        AuthService.currentUser;
+    await _usersCollection.doc(firebaseUser.uid).update({
+      'pendingEmail': newEmail,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
 
-    if (user == null) {
-      throw Exception(
-        'User not found',
-      );
+    final currentUser = await getCurrentUser();
+
+    if (currentUser == null) {
+      throw Exception('User not found');
     }
 
-    final updatedUser =
-    user.copyWith(
-      email: newEmail,
-    );
+    return currentUser;
+  }
 
-    AuthService.updateCurrentUser(
-      updatedUser,
-    );
+  Future<void> updatePassword(String newPassword) async {
+    final firebaseUser = _currentFirebaseUser;
+
+    await firebaseUser.updatePassword(newPassword);
+  }
+
+  Future<UserModel> updateProfilePhoto(File imageFile) async {
+    final firebaseUser = _currentFirebaseUser;
+
+    await _usersCollection.doc(firebaseUser.uid).update({
+      'photoUrl': imageFile.path,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    final updatedUser = (await getCurrentUser())!;
+
+    AuthService.updateCurrentUser(updatedUser);
 
     return updatedUser;
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | UPDATE PASSWORD
-  |--------------------------------------------------------------------------
-  */
+  Future<UserModel> updateProfilePhotoUrl(String imageUrl) async {
+    final firebaseUser = _currentFirebaseUser;
 
-  Future<void> updatePassword(
-      String newPassword,
-      ) async {
-    await Future.delayed(
-      const Duration(
-        milliseconds: 250,
-      ),
-    );
+    await _usersCollection.doc(firebaseUser.uid).update({
+      'photoUrl': imageUrl,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
 
-    // nanti diganti Firebase Auth
-  }
+    final updatedUser = (await getCurrentUser())!;
 
-  /*
-  |--------------------------------------------------------------------------
-  | UPDATE PROFILE PHOTO
-  |--------------------------------------------------------------------------
-  */
-
-  Future<UserModel>
-  updateProfilePhoto(
-      File imageFile,
-      ) async {
-    await Future.delayed(
-      const Duration(
-        milliseconds: 400,
-      ),
-    );
-
-    final user =
-        AuthService.currentUser;
-
-    if (user == null) {
-      throw Exception(
-        'User not found',
-      );
-    }
-
-    final updatedUser =
-    user.copyWith(
-      photoUrl:
-      imageFile.path,
-    );
-
-    AuthService.updateCurrentUser(
-      updatedUser,
-    );
+    AuthService.updateCurrentUser(updatedUser);
 
     return updatedUser;
   }
 
-  Future<UserModel>
-  updateProfilePhotoUrl(
-      String imageUrl,
-      ) async {
-    await Future.delayed(
-      const Duration(
-        milliseconds: 400,
-      ),
-    );
+  Future<UserModel> updateDietaryPreferences(List<String> preferences) async {
+    final firebaseUser = _currentFirebaseUser;
 
-    final user =
-        AuthService.currentUser;
+    await _usersCollection.doc(firebaseUser.uid).update({
+      'dietaryPreferences': preferences,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
 
-    if (user == null) {
-      throw Exception(
-        'User not found',
-      );
-    }
+    final updatedUser = (await getCurrentUser())!;
 
-    final updatedUser =
-    user.copyWith(
-      photoUrl: imageUrl,
-    );
-
-    AuthService.updateCurrentUser(
-      updatedUser,
-    );
+    AuthService.updateCurrentUser(updatedUser);
 
     return updatedUser;
   }
-
-  /*
-  |--------------------------------------------------------------------------
-  | UPDATE DIETARY PREFERENCES
-  |--------------------------------------------------------------------------
-  */
-
-  Future<UserModel>
-  updateDietaryPreferences(
-      List<String> preferences,
-      ) async {
-    await Future.delayed(
-      const Duration(
-        milliseconds: 250,
-      ),
-    );
-
-    final user =
-        AuthService.currentUser;
-
-    if (user == null) {
-      throw Exception(
-        'User not found',
-      );
-    }
-
-    final updatedUser =
-    user.copyWith(
-      dietaryPreferences:
-      preferences,
-    );
-
-    AuthService.updateCurrentUser(
-      updatedUser,
-    );
-
-    return updatedUser;
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | LOGOUT
-  |--------------------------------------------------------------------------
-  */
 
   Future<void> logout() async {
-    await Future.delayed(
-      const Duration(
-        milliseconds: 250,
-      ),
-    );
-
-    await AuthService()
-        .logout();
+    await AuthService().logout();
   }
 }

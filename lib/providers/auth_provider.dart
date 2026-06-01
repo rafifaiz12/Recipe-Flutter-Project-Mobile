@@ -4,52 +4,39 @@ import 'package:siresep/models/user_model.dart';
 
 import 'package:siresep/services/auth_service.dart';
 
-class AuthProvider
-    extends ChangeNotifier {
-  final AuthService
-  _authService =
-  AuthService();
+class AuthProvider extends ChangeNotifier {
+  final AuthService _authService = AuthService();
 
   UserModel? _user;
 
   bool _isLoading = false;
+  String? _errorMessage;
 
-  UserModel? get user =>
-      _user;
+  UserModel? get user => _user;
 
-  bool get isLoading =>
-      _isLoading;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
 
-  bool get isLoggedIn =>
-      _user != null;
+  bool get isLoggedIn => _user != null;
 
-  Future<void>
-  restoreSession() async {
-    _user =
-        AuthService
-            .currentUser;
+  Future<void> restoreSession() async {
+    _user = AuthService.currentUser;
 
     notifyListeners();
   }
 
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> login({required String email, required String password}) async {
     _isLoading = true;
-
+    _errorMessage = null;
     notifyListeners();
 
     try {
-      _user =
-      await _authService
-          .login(
-        email: email,
-        password: password,
-      );
+      _user = await _authService.login(email: email, password: password);
+    } catch (e) {
+      _errorMessage = e.toString();
+      rethrow;
     } finally {
       _isLoading = false;
-
       notifyListeners();
     }
   }
@@ -60,27 +47,26 @@ class AuthProvider
     required String password,
   }) async {
     _isLoading = true;
-
+    _errorMessage = null;
     notifyListeners();
 
     try {
-      _user =
-      await _authService
-          .register(
+      _user = await _authService.register(
         name: name,
         email: email,
         password: password,
       );
+    } catch (e) {
+      _errorMessage = e.toString();
+      rethrow;
     } finally {
       _isLoading = false;
-
       notifyListeners();
     }
   }
 
   Future<void> logout() async {
-    await _authService
-        .logout();
+    await _authService.logout();
 
     _user = null;
 

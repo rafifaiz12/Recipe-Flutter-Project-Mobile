@@ -9,8 +9,7 @@ import 'package:siresep/models/user_model.dart';
 import 'package:siresep/services/profile_service.dart';
 
 class ProfileProvider extends ChangeNotifier {
-  final ProfileService _service =
-  ProfileService();
+  final ProfileService _service = ProfileService();
 
   UserModel? _user;
 
@@ -18,13 +17,15 @@ class ProfileProvider extends ChangeNotifier {
 
   bool _isUpdating = false;
 
+  String? _errorMessage;
+
   UserModel? get user => _user;
 
-  bool get isLoading =>
-      _isLoading;
+  bool get isLoading => _isLoading;
 
-  bool get isUpdating =>
-      _isUpdating;
+  bool get isUpdating => _isUpdating;
+
+  String? get errorMessage => _errorMessage;
 
   /*
   |--------------------------------------------------------------------------
@@ -33,18 +34,15 @@ class ProfileProvider extends ChangeNotifier {
   */
 
   int get savedRecipesCount {
-    return DummyData
-        .favorites.length;
+    return DummyData.favorites.length;
   }
 
   int get plannedMealsCount {
-    return DummyData
-        .mealPlans.length;
+    return DummyData.mealPlans.length;
   }
 
   int get shoppingItemsCount {
-    return DummyData
-        .shoppingItems.length;
+    return DummyData.shoppingItems.length;
   }
 
   int get reviewsCount {
@@ -53,11 +51,7 @@ class ProfileProvider extends ChangeNotifier {
     }
 
     return DummyData.reviews
-        .where(
-          (review) =>
-      review.userId ==
-          _user!.id,
-    )
+        .where((review) => review.userId == _user!.id)
         .length;
   }
 
@@ -73,10 +67,10 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _user =
-      await _service
-          .getCurrentUser();
-    } catch (_) {
+      _errorMessage = null;
+      _user = await _service.getCurrentUser();
+    } catch (e) {
+      _errorMessage = e.toString();
       _user = null;
     } finally {
       _isLoading = false;
@@ -91,12 +85,8 @@ class ProfileProvider extends ChangeNotifier {
   |--------------------------------------------------------------------------
   */
 
-  Future<bool> changeName(
-      String newName,
-      ) async {
-    if (newName
-        .trim()
-        .isEmpty) {
+  Future<bool> changeName(String newName) async {
+    if (newName.trim().isEmpty) {
       return false;
     }
 
@@ -105,11 +95,7 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _user =
-      await _service
-          .updateName(
-        newName.trim(),
-      );
+      _user = await _service.updateName(newName.trim());
 
       return true;
     } catch (_) {
@@ -127,12 +113,8 @@ class ProfileProvider extends ChangeNotifier {
   |--------------------------------------------------------------------------
   */
 
-  Future<bool> changeEmail(
-      String newEmail,
-      ) async {
-    if (newEmail
-        .trim()
-        .isEmpty) {
+  Future<bool> changeEmail(String newEmail) async {
+    if (newEmail.trim().isEmpty) {
       return false;
     }
 
@@ -141,11 +123,7 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _user =
-      await _service
-          .updateEmail(
-        newEmail.trim(),
-      );
+      _user = await _service.updateEmail(newEmail.trim());
 
       return true;
     } catch (_) {
@@ -163,13 +141,8 @@ class ProfileProvider extends ChangeNotifier {
   |--------------------------------------------------------------------------
   */
 
-  Future<bool>
-  changePassword(
-      String newPassword,
-      ) async {
-    if (newPassword
-        .length <
-        6) {
+  Future<bool> changePassword(String newPassword) async {
+    if (newPassword.length < 6) {
       return false;
     }
 
@@ -178,10 +151,7 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _service
-          .updatePassword(
-        newPassword,
-      );
+      await _service.updatePassword(newPassword);
 
       return true;
     } catch (_) {
@@ -199,20 +169,13 @@ class ProfileProvider extends ChangeNotifier {
   |--------------------------------------------------------------------------
   */
 
-  Future<bool>
-  changeProfilePhoto(
-      File imageFile,
-      ) async {
+  Future<bool> changeProfilePhoto(File imageFile) async {
     _isUpdating = true;
 
     notifyListeners();
 
     try {
-      _user =
-      await _service
-          .updateProfilePhoto(
-        imageFile,
-      );
+      _user = await _service.updateProfilePhoto(imageFile);
 
       return true;
     } catch (_) {
@@ -224,20 +187,13 @@ class ProfileProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool>
-  changeProfilePhotoUrl(
-      String imageUrl,
-      ) async {
+  Future<bool> changeProfilePhotoUrl(String imageUrl) async {
     _isUpdating = true;
 
     notifyListeners();
 
     try {
-      _user =
-      await _service
-          .updateProfilePhotoUrl(
-        imageUrl,
-      );
+      _user = await _service.updateProfilePhotoUrl(imageUrl);
 
       return true;
     } catch (_) {
@@ -255,21 +211,13 @@ class ProfileProvider extends ChangeNotifier {
   |--------------------------------------------------------------------------
   */
 
-  Future<bool>
-  updateDietaryPreferences(
-      List<String>
-      preferences,
-      ) async {
+  Future<bool> updateDietaryPreferences(List<String> preferences) async {
     _isUpdating = true;
 
     notifyListeners();
 
     try {
-      _user =
-      await _service
-          .updateDietaryPreferences(
-        preferences,
-      );
+      _user = await _service.updateDietaryPreferences(preferences);
 
       return true;
     } catch (_) {

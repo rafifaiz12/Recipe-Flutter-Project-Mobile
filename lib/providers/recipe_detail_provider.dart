@@ -1,149 +1,71 @@
 import 'package:flutter/material.dart';
-
 import 'package:siresep/models/recipe_model.dart';
-import 'package:siresep/models/review_model.dart';
-
 import 'package:siresep/services/recipe_detail_service.dart';
 
-class RecipeDetailProvider
-    extends ChangeNotifier {
-  final RecipeDetailService
-  _service =
-  RecipeDetailService();
+class RecipeDetailProvider extends ChangeNotifier {
+  final RecipeDetailService _recipeDetailService = RecipeDetailService();
 
   RecipeModel? _recipe;
-
-  List<ReviewModel> _reviews = [];
-
   bool _isLoading = false;
-
+  String? _errorMessage;
   int _selectedServings = 1;
 
   RecipeModel? get recipe => _recipe;
-
-  List<ReviewModel> get reviews =>
-      _reviews;
-
   bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  int get selectedServings => _selectedServings;
 
-  int get selectedServings =>
-      _selectedServings;
-
-  Future<void> loadRecipe(
-      String recipeId,
-      ) async {
+  Future<void> loadRecipe(String recipeId) async {
     _isLoading = true;
-
+    _errorMessage = null;
     notifyListeners();
 
     try {
-      final recipe =
-      await _service.getRecipe(
-        recipeId,
-      );
-
-      if (recipe != null) {
-        _recipe = recipe;
-
-        _selectedServings =
-            recipe.servings;
-      }
-
-      _reviews =
-      await _service.getReviews(
-        recipeId,
-      );
+      _recipe = await _recipeDetailService.getRecipeById(recipeId);
+      _selectedServings = _recipe?.servings == 0 ? 1 : _recipe?.servings ?? 1;
+    } catch (e) {
+      _errorMessage = e.toString();
     } finally {
       _isLoading = false;
-
       notifyListeners();
     }
   }
 
-  Future<void> addReview({
-    required int rating,
-    required String comment,
-  }) async {
-    if (_recipe == null) {
-      return;
-    }
-
-    await _service.addReview(
-      recipeId: _recipe!.id,
-      rating: rating,
-      comment: comment,
-    );
-
-    await loadRecipe(_recipe!.id);
-  }
-
   void increaseServings() {
     _selectedServings++;
-
     notifyListeners();
   }
 
   void decreaseServings() {
-    if (_selectedServings <= 1) {
-      return;
-    }
+    if (_selectedServings <= 1) return;
 
     _selectedServings--;
-
     notifyListeners();
   }
 
-  double scaledQuantity(
-      double baseQuantity,
-      ) {
-    if (_recipe == null) {
-      return baseQuantity;
-    }
-
-    return (baseQuantity /
-        _recipe!.servings) *
-        _selectedServings;
+  double scaledQuantity(double quantity) {
+    final baseServings = _recipe?.servings == 0 ? 1 : _recipe?.servings ?? 1;
+    return quantity * _selectedServings / baseServings;
   }
 
-  String formatQuantity(
-      double value,
-      ) {
-    if (value % 1 == 0) {
+  String formatQuantity(double value) {
+    if (value == value.roundToDouble()) {
       return value.toInt().toString();
     }
 
-    return value
-        .toStringAsFixed(1)
-        .replaceAll('.0', '');
+    return value.toStringAsFixed(1);
   }
 
-  String formatReviewDate(
-      DateTime date,
-      ) {
-    final difference =
-        DateTime.now()
-            .difference(date)
-            .inDays;
+  Future<void> addReview({required int rating, required String comment}) async {
+    // Review Firestore bisa kita integrasikan pada tahap berikutnya.
+    // Method ini dibiarkan agar UI lama tidak error.
+  }
 
-    if (difference <= 0) {
-      return 'Today';
-    }
+  String formatReviewDate(DateTime date) {
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    final year = date.year.toString();
 
-    if (difference == 1) {
-      return '1 day ago';
-    }
-
-    if (difference < 7) {
-      return '$difference days ago';
-    }
-
-    if (difference < 14) {
-      return '1 week ago';
-    }
-
-    final week =
-    (difference / 7).floor();
-
-    return '$week weeks ago';
+    return '$day/$month/$year';
   }
 }

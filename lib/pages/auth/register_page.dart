@@ -15,22 +15,17 @@ class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
   @override
-  State<RegisterPage> createState() =>
-      _RegisterPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final GlobalKey<FormState> _formKey =
-  GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _nameController =
-  TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
 
-  final TextEditingController _emailController =
-  TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
 
-  final TextEditingController _passwordController =
-  TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
 
@@ -50,22 +45,27 @@ class _RegisterPageState extends State<RegisterPage> {
 
     final authProvider = context.read<AuthProvider>();
 
-    await authProvider.register(
-      name: _nameController.text.trim(),
-      email: _emailController.text.trim(),
-      password: _passwordController.text.trim(),
-    );
+    try {
+      await authProvider.register(
+        name: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
 
-    await context
-        .read<ProfileProvider>()
-        .loadProfile();
+      await context.read<ProfileProvider>().loadProfile();
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    Navigator.pushReplacementNamed(
-      context,
-      AppRoutes.main,
-    );
+      Navigator.pushReplacementNamed(context, AppRoutes.main);
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Registrasi gagal: ${authProvider.errorMessage ?? e}'),
+        ),
+      );
+    }
   }
 
   void _goToLoginPage() {
@@ -92,9 +92,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       'https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=1200&auto=format&fit=crop',
                       fit: BoxFit.cover,
                     ),
-                    Container(
-                      color: Colors.black.withValues(alpha: 0.10),
-                    ),
+                    Container(color: Colors.black.withValues(alpha: 0.10)),
                     Center(
                       child: Text(
                         AppStrings.appName,
@@ -124,10 +122,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         controller: _nameController,
                         hintText: AppStrings.fullName,
                         validator: (value) =>
-                            Validators.validateRequired(
-                              value,
-                              'Nama',
-                            ),
+                            Validators.validateRequired(value, 'Nama'),
                       ),
                       const SizedBox(height: AppSizes.spaceM),
                       CustomTextField(
@@ -140,13 +135,11 @@ class _RegisterPageState extends State<RegisterPage> {
                         controller: _passwordController,
                         hintText: AppStrings.password,
                         obscureText: _obscurePassword,
-                        validator:
-                        Validators.validatePassword,
+                        validator: Validators.validatePassword,
                         suffixIcon: IconButton(
                           onPressed: () {
                             setState(() {
-                              _obscurePassword =
-                              !_obscurePassword;
+                              _obscurePassword = !_obscurePassword;
                             });
                           },
                           icon: Icon(
@@ -161,35 +154,25 @@ class _RegisterPageState extends State<RegisterPage> {
                       PrimaryButton(
                         text: authProvider.isLoading
                             ? 'LOADING...'
-                            : AppStrings.register
-                            .toUpperCase(),
-                        onPressed: authProvider.isLoading
-                            ? null
-                            : _register,
-                        backgroundColor:
-                        AppColors.secondary,
+                            : AppStrings.register.toUpperCase(),
+                        onPressed: authProvider.isLoading ? null : _register,
+                        backgroundColor: AppColors.secondary,
                       ),
                       const SizedBox(height: AppSizes.spaceM),
                       Row(
-                        mainAxisAlignment:
-                        MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             'Already have an account? ',
-                            style:
-                            AppTextStyles.bodySecondary,
+                            style: AppTextStyles.bodySecondary,
                           ),
                           GestureDetector(
                             onTap: _goToLoginPage,
                             child: Text(
                               'Login',
-                              style: AppTextStyles
-                                  .bodySecondary
-                                  .copyWith(
-                                color:
-                                AppColors.secondary,
-                                fontWeight:
-                                FontWeight.w700,
+                              style: AppTextStyles.bodySecondary.copyWith(
+                                color: AppColors.secondary,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),

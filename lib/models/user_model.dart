@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class UserModel {
   final String id;
 
@@ -9,8 +11,7 @@ class UserModel {
 
   final String role;
 
-  final List<String>
-  dietaryPreferences;
+  final List<String> dietaryPreferences;
 
   final DateTime createdAt;
 
@@ -30,24 +31,17 @@ class UserModel {
     String? email,
     String? photoUrl,
     String? role,
-    List<String>?
-    dietaryPreferences,
+    List<String>? dietaryPreferences,
     DateTime? createdAt,
   }) {
     return UserModel(
       id: id ?? this.id,
       name: name ?? this.name,
       email: email ?? this.email,
-      photoUrl:
-      photoUrl ?? this.photoUrl,
+      photoUrl: photoUrl ?? this.photoUrl,
       role: role ?? this.role,
-      dietaryPreferences:
-      dietaryPreferences ??
-          this
-              .dietaryPreferences,
-      createdAt:
-      createdAt ??
-          this.createdAt,
+      dietaryPreferences: dietaryPreferences ?? this.dietaryPreferences,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 
@@ -58,20 +52,13 @@ class UserModel {
       'email': email,
       'photoUrl': photoUrl,
       'role': role,
-      'dietaryPreferences':
-      dietaryPreferences,
-      'createdAt':
-      createdAt
-          .toIso8601String(),
+      'dietaryPreferences': dietaryPreferences,
+      'createdAt': createdAt.toIso8601String(),
     };
   }
 
-  factory UserModel.fromMap(
-      Map<String, dynamic> map,
-      ) {
-    DateTime parseDate(
-        dynamic value,
-        ) {
+  factory UserModel.fromMap(Map<String, dynamic> map) {
+    DateTime parseDate(dynamic value) {
       if (value == null) {
         return DateTime.now();
       }
@@ -80,51 +67,33 @@ class UserModel {
         return value;
       }
 
+      if (value is Timestamp) {
+        return value.toDate();
+      }
+
       try {
-        return DateTime.parse(
-          value.toString(),
-        );
+        return DateTime.parse(value.toString());
       } catch (_) {
         return DateTime.now();
       }
     }
 
     return UserModel(
-      id:
-      map['id']?.toString() ??
-          '',
+      id: map['id']?.toString() ?? '',
 
-      name:
-      map['name']
-          ?.toString() ??
-          '',
+      name: map['name']?.toString() ?? '',
 
-      email:
-      map['email']
-          ?.toString() ??
-          '',
+      email: map['email']?.toString() ?? '',
 
-      photoUrl:
-      map['photoUrl']
-          ?.toString() ??
-          '',
+      photoUrl: map['photoUrl']?.toString() ?? '',
 
-      role:
-      map['role']
-          ?.toString() ??
-          'user',
+      role: map['role']?.toString() ?? 'user',
 
-      dietaryPreferences:
-      map['dietaryPreferences']
-      is List
-          ? List<String>.from(
-        map['dietaryPreferences'],
-      )
+      dietaryPreferences: map['dietaryPreferences'] is List
+          ? List<String>.from(map['dietaryPreferences'])
           : [],
 
-      createdAt: parseDate(
-        map['createdAt'],
-      ),
+      createdAt: parseDate(map['createdAt']),
     );
   }
 }
