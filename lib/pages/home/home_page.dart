@@ -2,15 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:siresep/app/routes.dart';
-
 import 'package:siresep/core/constants/app_colors.dart';
 import 'package:siresep/core/constants/app_sizes.dart';
 import 'package:siresep/core/constants/app_text_styles.dart';
-
 import 'package:siresep/core/widgets/section_title.dart';
-
 import 'package:siresep/models/recipe_model.dart';
-
 import 'package:siresep/providers/recipe_provider.dart';
 import 'package:siresep/providers/review_provider.dart';
 
@@ -19,12 +15,7 @@ const String _fallbackRecipeImage =
 
 String _safeRecipeImage(String imageUrl) {
   final trimmed = imageUrl.trim();
-
-  if (trimmed.isEmpty) {
-    return _fallbackRecipeImage;
-  }
-
-  return trimmed;
+  return trimmed.isEmpty ? _fallbackRecipeImage : trimmed;
 }
 
 String _recipeMetaText(RecipeModel recipe, double rating) {
@@ -52,7 +43,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
-
   bool _showSuggestions = false;
 
   @override
@@ -67,7 +57,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _searchController.dispose();
-
     super.dispose();
   }
 
@@ -102,9 +91,7 @@ class _HomePageState extends State<HomePage> {
     final recipeProvider = context.watch<RecipeProvider>();
 
     final trendingRecipes = recipeProvider.trendingRecipes;
-
     final recommendedRecipes = recipeProvider.recipes;
-
     final searchResults = recipeProvider.searchResults;
 
     return Scaffold(
@@ -169,7 +156,6 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                       const SizedBox(height: AppSizes.spaceL),
-
                       Column(
                         children: [
                           TextField(
@@ -204,7 +190,6 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                           ),
-
                           if (_showSuggestions && searchResults.isNotEmpty)
                             Container(
                               margin: const EdgeInsets.only(
@@ -240,18 +225,14 @@ class _HomePageState extends State<HomePage> {
                             ),
                         ],
                       ),
-
                       const SizedBox(height: AppSizes.spaceL),
-
                       _AiRecipeAssistantCard(onTap: _goToAiChat),
-
                       const SizedBox(height: AppSizes.spaceXL),
-
                       if (trendingRecipes.isNotEmpty) ...[
                         const SectionTitle(title: 'Trending Recipes'),
                         const SizedBox(height: AppSizes.spaceM),
                         SizedBox(
-                          height: 260,
+                          height: 180,
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
                             itemCount: trendingRecipes.length,
@@ -260,23 +241,17 @@ class _HomePageState extends State<HomePage> {
                             itemBuilder: (context, index) {
                               final recipe = trendingRecipes[index];
 
-                              return SizedBox(
-                                width: 300,
-                                child: _HorizontalRecipeCard(
-                                  recipe: recipe,
-                                  onTap: () => _goToRecipeDetail(recipe.id),
-                                ),
+                              return _HorizontalRecipeCard(
+                                recipe: recipe,
+                                onTap: () => _goToRecipeDetail(recipe.id),
                               );
                             },
                           ),
                         ),
                         const SizedBox(height: AppSizes.spaceXL),
                       ],
-
                       const SectionTitle(title: 'Recommended For You'),
-
                       const SizedBox(height: AppSizes.spaceM),
-
                       if (recommendedRecipes.isEmpty)
                         Container(
                           width: double.infinity,
@@ -380,7 +355,6 @@ class _AiRecipeAssistantCard extends StatelessWidget {
 
 class _HorizontalRecipeCard extends StatelessWidget {
   final RecipeModel recipe;
-
   final VoidCallback onTap;
 
   const _HorizontalRecipeCard({required this.recipe, required this.onTap});
@@ -388,51 +362,57 @@ class _HorizontalRecipeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final reviewProvider = context.watch<ReviewProvider>();
-
     final rating = reviewProvider.averageRating(recipe.id);
+
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppSizes.radiusXL),
-          image: DecorationImage(
-            image: NetworkImage(_safeRecipeImage(recipe.imageUrl)),
-            fit: BoxFit.cover,
-          ),
-        ),
+      child: SizedBox(
+        width: 150,
+        height: 180,
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppSizes.radiusXL),
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.black.withValues(alpha: 0.05),
-                Colors.black.withValues(alpha: 0.65),
-              ],
+            image: DecorationImage(
+              image: NetworkImage(_safeRecipeImage(recipe.imageUrl)),
+              fit: BoxFit.cover,
             ),
           ),
-          padding: const EdgeInsets.all(AppSizes.paddingM),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(
-                _recipeMetaText(recipe, rating),
-                style: AppTextStyles.caption.copyWith(color: Colors.white),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withValues(alpha: 0.05),
+                  Colors.black.withValues(alpha: 0.65),
+                ],
               ),
-              const SizedBox(height: AppSizes.spaceS),
-              Text(
-                recipe.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.h2.copyWith(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
+            ),
+            padding: const EdgeInsets.all(AppSizes.paddingM),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(
+                  _recipeMetaText(recipe, rating),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption.copyWith(color: Colors.white),
                 ),
-              ),
-            ],
+                const SizedBox(height: AppSizes.spaceS),
+                Text(
+                  recipe.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.h2.copyWith(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -442,7 +422,6 @@ class _HorizontalRecipeCard extends StatelessWidget {
 
 class _VerticalRecipeCard extends StatelessWidget {
   final RecipeModel recipe;
-
   final VoidCallback onTap;
 
   const _VerticalRecipeCard({required this.recipe, required this.onTap});
@@ -450,52 +429,57 @@ class _VerticalRecipeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final reviewProvider = context.watch<ReviewProvider>();
-
     final rating = reviewProvider.averageRating(recipe.id);
+
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        height: 250,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppSizes.radiusXL),
-          image: DecorationImage(
-            image: NetworkImage(_safeRecipeImage(recipe.imageUrl)),
-            fit: BoxFit.cover,
-          ),
-        ),
+      child: SizedBox(
+        width: double.infinity,
+        height: 190,
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppSizes.radiusXL),
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.black.withValues(alpha: 0.05),
-                Colors.black.withValues(alpha: 0.65),
-              ],
+            image: DecorationImage(
+              image: NetworkImage(_safeRecipeImage(recipe.imageUrl)),
+              fit: BoxFit.cover,
             ),
           ),
-          padding: const EdgeInsets.all(AppSizes.paddingM),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(
-                _recipeMetaText(recipe, rating),
-                style: AppTextStyles.caption.copyWith(color: Colors.white),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withValues(alpha: 0.05),
+                  Colors.black.withValues(alpha: 0.65),
+                ],
               ),
-              const SizedBox(height: AppSizes.spaceS),
-              Text(
-                recipe.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.h2.copyWith(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
+            ),
+            padding: const EdgeInsets.all(AppSizes.paddingM),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(
+                  _recipeMetaText(recipe, rating),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption.copyWith(color: Colors.white),
                 ),
-              ),
-            ],
+                const SizedBox(height: AppSizes.spaceS),
+                Text(
+                  recipe.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.h2.copyWith(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

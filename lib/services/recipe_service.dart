@@ -5,12 +5,16 @@ class RecipeService {
   final CollectionReference<Map<String, dynamic>> _recipesCollection =
       FirebaseFirestore.instance.collection('recipes');
 
+  bool _isPublished(Map<String, dynamic> data) {
+    return data['status']?.toString().trim().toLowerCase() == 'published';
+  }
+
   Future<List<RecipeModel>> getRecipes() async {
     final snapshot = await _recipesCollection
         .orderBy('createdAt', descending: true)
         .get();
 
-    return snapshot.docs.map((doc) {
+    return snapshot.docs.where((doc) => _isPublished(doc.data())).map((doc) {
       return RecipeModel.fromMap({'id': doc.id, ...doc.data()});
     }).toList();
   }
@@ -20,7 +24,9 @@ class RecipeService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) {
-          return snapshot.docs.map((doc) {
+          return snapshot.docs.where((doc) => _isPublished(doc.data())).map((
+            doc,
+          ) {
             return RecipeModel.fromMap({'id': doc.id, ...doc.data()});
           }).toList();
         });
@@ -48,6 +54,12 @@ class RecipeService {
       return null;
     }
 
-    return RecipeModel.fromMap({'id': doc.id, ...doc.data()!});
+    final data = doc.data()!;
+
+    if (!_isPublished(data)) {
+      return null;
+    }
+
+    return RecipeModel.fromMap({'id': doc.id, ...data});
   }
 }
