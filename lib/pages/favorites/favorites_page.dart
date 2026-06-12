@@ -12,7 +12,6 @@ import 'package:siresep/core/widgets/empty_state_widget.dart';
 import 'package:siresep/models/recipe_model.dart';
 
 import 'package:siresep/providers/favorite_provider.dart';
-import 'package:siresep/providers/review_provider.dart';
 
 class FavoritesPage
     extends StatefulWidget {
@@ -35,13 +34,6 @@ class _FavoritesPageState
   @override
   void initState() {
     super.initState();
-
-    Future.microtask(() async {
-      await context
-          .read<
-          FavoriteProvider>()
-          .loadFavorites();
-    });
   }
 
   @override
@@ -318,15 +310,10 @@ class _FavoriteRecipeCard
   Widget build(
       BuildContext context,
       ) {
-    final reviewProvider =
-    context.watch<
-        ReviewProvider>();
 
     final rating =
-    reviewProvider
-        .averageRating(
-      recipe.id,
-    );
+        recipe.ratingAverage;
+
     return GestureDetector(
       onTap: onTap,
       child: Column(

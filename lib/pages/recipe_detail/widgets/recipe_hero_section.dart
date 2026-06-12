@@ -51,7 +51,18 @@ class RecipeHeroSection
             child: Image.network(
               imageUrl,
               fit: BoxFit.cover,
-            ),
+              errorBuilder:
+                  (
+                  context,
+                  error,
+                  stackTrace,
+                  ) {
+                return Image.network(
+                  'https://dummyimage.com/600x400/e5e7eb/6b7280&text=SiResep',
+                  fit: BoxFit.cover,
+                );
+              },
+            )
           ),
 
           Positioned.fill(

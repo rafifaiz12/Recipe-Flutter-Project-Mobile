@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:siresep/models/meal_plan_model.dart';
 import 'package:siresep/models/recipe_model.dart';
 
@@ -7,6 +8,9 @@ import 'package:siresep/services/meal_plan_service.dart';
 
 class MealPlanProvider
     extends ChangeNotifier {
+  MealPlanProvider() {
+    loadMealPlans();
+  }
   final MealPlanService
   _service =
   MealPlanService();
@@ -114,7 +118,12 @@ class MealPlanProvider
     MealPlanModel(
       id:
       '${selectedDay}_$mealType',
-      userId: 'temporary_user',
+      userId:
+      FirebaseAuth
+          .instance
+          .currentUser
+          ?.uid ??
+          '',
       day: selectedDay,
       mealType: mealType,
       recipeId: recipe.id,

@@ -1,4 +1,5 @@
 import 'package:siresep/core/utils/model_parsers.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MealPlanModel {
   final String id;
@@ -38,9 +39,44 @@ class MealPlanModel {
     );
   }
 
+  factory MealPlanModel.fromFirestore(
+      DocumentSnapshot doc,
+      ) {
+    final data =
+    doc.data()
+    as Map<String, dynamic>;
+
+    return MealPlanModel(
+      id: doc.id,
+      userId:
+      data['userId'] ?? '',
+      day:
+      data['day'] ?? '',
+      mealType:
+      data['mealType'] ?? '',
+      recipeId:
+      data['recipeId'] ?? '',
+      createdAt:
+      ModelParsers.parseDateTime(
+        data['createdAt'],
+      ),
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'userId': userId,
+      'day': day,
+      'mealType': mealType,
+      'recipeId': recipeId,
+      'createdAt': createdAt,
+    };
+  }
+
+  Map<String, dynamic>
+  toFirestore() {
+    return {
       'userId': userId,
       'day': day,
       'mealType': mealType,

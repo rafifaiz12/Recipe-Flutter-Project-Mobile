@@ -100,9 +100,37 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
       return;
     }
 
-    await provider.addReview(rating: rating, comment: comment);
+    try {
+      await reviewProvider.addReview(
+        recipeId: recipe.id,
+        rating: rating,
+        comment: comment,
+      );
 
-    await reviewProvider.loadRecipeReviews(recipe.id);
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Review submitted',
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Error: $e',
+          ),
+        ),
+      );
+    }
+
+    await reviewProvider.loadRecipeReviews(
+      recipe.id,
+    );
 
     if (!mounted) {
       return;
@@ -119,7 +147,9 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
 
     final favoriteProvider = context.watch<FavoriteProvider>();
 
-    final shoppingListProvider = context.watch<ShoppingListProvider>();
+    final shoppingListProvider =
+    context.read<
+        ShoppingListProvider>();
 
     final reviewProvider = context.watch<ReviewProvider>();
 
@@ -143,9 +173,11 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
 
     final List<ReviewModel> reviews = reviewProvider.reviews;
 
-    final double averageRating = reviewProvider.averageRating(recipe.id);
+    final double averageRating =
+        recipe.ratingAverage;
 
-    final int totalReviews = reviewProvider.totalRecipeReviews(recipe.id);
+    final int totalReviews =
+        recipe.reviewCount;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -166,6 +198,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
               onBackTap: _goBackToHome,
               onFavoriteTap: () async {
                 await favoriteProvider.toggleFavorite(recipe.id);
+                await favoriteProvider.loadFavorites();
 
                 if (!mounted) {
                   return;
@@ -273,8 +306,13 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
 
                     ReviewsSection(
                       reviews: reviews,
-                      onWriteReviewTap: _openWriteReviewModal,
-                      formatReviewDate: provider.formatReviewDate,
+                      totalReviews: totalReviews,
+                      isLoading:
+                      reviewProvider.isLoading,
+                      onWriteReviewTap:
+                      _openWriteReviewModal,
+                      formatReviewDate:
+                      provider.formatReviewDate,
                     ),
                   ],
                 ),

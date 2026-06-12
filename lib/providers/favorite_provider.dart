@@ -6,6 +6,9 @@ import 'package:siresep/services/favorite_service.dart';
 
 class FavoriteProvider
     extends ChangeNotifier {
+  FavoriteProvider() {
+    loadFavorites();
+  }
   final FavoriteService
   _favoriteService =
   FavoriteService();
@@ -50,32 +53,24 @@ class FavoriteProvider
     }
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | TOGGLE FAVORITE
-  |--------------------------------------------------------------------------
-  */
 
   Future<void> toggleFavorite(
       String recipeId,
       ) async {
-    await _favoriteService
-        .toggleFavorite(
-      recipeId,
-    );
+    try {
+      await _favoriteService
+          .toggleFavorite(
+        recipeId,
+      );
 
-    _favoriteRecipes =
-    await _favoriteService
-        .getFavoriteRecipes();
-
-    notifyListeners();
+      await loadFavorites();
+    } catch (e) {
+      debugPrint(
+        'Favorite Error: $e',
+      );
+    }
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | CHECK FAVORITE
-  |--------------------------------------------------------------------------
-  */
 
   bool isFavorite(
       String recipeId,
@@ -87,11 +82,9 @@ class FavoriteProvider
     );
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | CLEAR FAVORITES
-  |--------------------------------------------------------------------------
-  */
+  Future<void> refresh() async {
+    await loadFavorites();
+  }
 
   void clearFavorites() {
     _favoriteRecipes = [];

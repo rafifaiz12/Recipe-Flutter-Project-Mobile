@@ -1,89 +1,118 @@
-import 'package:siresep/models/shopping_item_model.dart';
+import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import '../models/shopping_item_model.dart';
 
 class ShoppingListService {
-  static final List<ShoppingItemModel>
-  _shoppingItems = [];
+  final FirebaseFirestore _firestore =
+      FirebaseFirestore.instance;
+
+  final FirebaseAuth _auth =
+      FirebaseAuth.instance;
+
+  String get _userId {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception(
+        'User belum login',
+      );
+    }
+
+    return user.uid;
+  }
+
+  CollectionReference<Map<String, dynamic>>
+  get _shoppingCollection =>
+      _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('shopping_items');
 
   Future<List<ShoppingItemModel>>
   getShoppingItems() async {
-    await Future.delayed(
-      const Duration(milliseconds: 300),
-    );
+    final snapshot =
+    await _shoppingCollection
+        .orderBy(
+      'createdAt',
+      descending: true,
+    )
+        .get();
 
-    return List<ShoppingItemModel>.from(
-      _shoppingItems,
-    );
+    return snapshot.docs
+        .map(
+          (doc) =>
+          ShoppingItemModel.fromFirestore(
+            doc,
+          ),
+    )
+        .toList();
   }
 
   Future<void> addItem(
       ShoppingItemModel item,
       ) async {
-    await Future.delayed(
-      const Duration(milliseconds: 200),
-    );
-
-    _shoppingItems.add(item);
-
-    // TODO:
-    // Firestore add document
+    await _shoppingCollection
+        .doc(item.id)
+        .set(item.toFirestore());
+        debugPrint(
+          'SHOPPING ITEM SAVED',
+        );
   }
 
   Future<void> deleteItem(
       String itemId,
       ) async {
-    await Future.delayed(
-      const Duration(milliseconds: 200),
-    );
-
-    _shoppingItems.removeWhere(
-          (item) => item.id == itemId,
-    );
-
-    // TODO:
-    // Firestore delete document
+    await _shoppingCollection
+        .doc(itemId)
+        .delete();
   }
 
   Future<void> toggleItem(
       String itemId,
       ) async {
-    await Future.delayed(
-      const Duration(milliseconds: 200),
-    );
+    final doc =
+    await _shoppingCollection
+        .doc(itemId)
+        .get();
 
-    final index = _shoppingItems
-        .indexWhere(
-          (item) => item.id == itemId,
-    );
-
-    if (index == -1) {
+    if (!doc.exists) {
       return;
     }
 
-    final currentItem =
-    _shoppingItems[index];
+    final item =
+    ShoppingItemModel.fromFirestore(
+      doc,
+    );
 
-    _shoppingItems[index] =
-        currentItem.copyWith(
-          isChecked:
-          !currentItem.isChecked,
-        );
-
-    // TODO:
-    // Firestore update document
+    await _shoppingCollection
+        .doc(itemId)
+        .update({
+      'isChecked':
+      !item.isChecked,
+    });
   }
 
   Future<void> clearCheckedItems()
   async {
-    await Future.delayed(
-      const Duration(milliseconds: 250),
-    );
+    final snapshot =
+    await _shoppingCollection
+        .where(
+      'isChecked',
+      isEqualTo: true,
+    )
+        .get();
 
-    _shoppingItems.removeWhere(
-          (item) => item.isChecked,
-    );
+    final batch =
+    _firestore.batch();
 
-    // TODO:
-    // Firestore batch delete
+    for (final doc
+    in snapshot.docs) {
+      batch.delete(doc.reference);
+    }
+
+    await batch.commit();
   }
 
   Future<void>
@@ -92,13 +121,21 @@ class ShoppingListService {
         ShoppingItemModel>
     items,
   }) async {
-    await Future.delayed(
-      const Duration(milliseconds: 250),
-    );
+    final batch =
+    _firestore.batch();
 
-    _shoppingItems.addAll(items);
+    for (final item in items) {
+      final docRef =
+      _shoppingCollection.doc(
+        item.id,
+      );
 
-    // TODO:
-    // Firestore batch write
+      batch.set(
+        docRef,
+        item.toFirestore(),
+      );
+    }
+
+    await batch.commit();
   }
 }

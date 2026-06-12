@@ -8,8 +8,6 @@ import 'package:siresep/core/constants/app_colors.dart';
 import 'package:siresep/core/constants/app_sizes.dart';
 import 'package:siresep/core/constants/app_text_styles.dart';
 
-import 'package:siresep/core/utils/dummy_data.dart';
-
 import 'package:siresep/models/recipe_model.dart';
 
 import 'package:siresep/pages/meal_plan/add_meal_recipe_page.dart'
@@ -22,6 +20,7 @@ import 'package:siresep/pages/meal_plan/widgets/meal_section.dart';
 
 import 'package:siresep/pages/shopping_list/shopping_list_page.dart';
 
+import 'package:siresep/providers/recipe_provider.dart';
 import 'package:siresep/providers/meal_plan_provider.dart';
 import 'package:siresep/providers/shopping_list_provider.dart';
 
@@ -39,9 +38,7 @@ class MealPlanPage
 
 class _MealPlanPageState
     extends State<MealPlanPage> {
-  final List<RecipeModel>
-  _recipes =
-      DummyData.recipes;
+
 
   @override
   void initState() {
@@ -59,6 +56,10 @@ class _MealPlanPageState
   _openAddMealModal({
     required String mealType,
   }) async {
+    final recipes =
+        context
+            .read<RecipeProvider>()
+            .recipes;
     final RecipeModel?
     recipe =
     await showModalBottomSheet<
@@ -72,7 +73,7 @@ class _MealPlanPageState
           meal_modal
               .AddMealRecipePage(
             mealType: mealType,
-            recipes: _recipes,
+            recipes: recipes,
           ),
     );
 
@@ -156,6 +157,11 @@ class _MealPlanPageState
     context.read<
         ShoppingListProvider>();
 
+    final recipes =
+        context
+            .read<RecipeProvider>()
+            .recipes;
+
     final meals =
     mealProvider.mealPlans
         .where(
@@ -170,7 +176,7 @@ class _MealPlanPageState
     in meals) {
       try {
         final recipe =
-        _recipes.firstWhere(
+        recipes.firstWhere(
               (recipe) =>
           recipe.id ==
               meal.recipeId,
@@ -275,26 +281,33 @@ class _MealPlanPageState
     context.watch<
         MealPlanProvider>();
 
+    final recipeProvider =
+    context.watch<
+        RecipeProvider>();
+
+    final recipes =
+        recipeProvider.recipes;
+
     final breakfast =
     provider
         .recipeFromMeal(
       mealType:
       'Breakfast',
-      recipes: _recipes,
+      recipes: recipes,
     );
 
     final lunch =
     provider
         .recipeFromMeal(
       mealType: 'Lunch',
-      recipes: _recipes,
+      recipes: recipes,
     );
 
     final dinner =
     provider
         .recipeFromMeal(
       mealType: 'Dinner',
-      recipes: _recipes,
+      recipes: recipes,
     );
 
     return Scaffold(

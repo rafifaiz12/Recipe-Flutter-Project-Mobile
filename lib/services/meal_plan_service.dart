@@ -1,69 +1,147 @@
-import 'package:siresep/models/meal_plan_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import '../models/meal_plan_model.dart';
 
 class MealPlanService {
-  static final List<MealPlanModel>
-  _mealPlans = [];
+  final FirebaseFirestore _firestore =
+      FirebaseFirestore.instance;
+
+  final FirebaseAuth _auth =
+      FirebaseAuth.instance;
+
+  String get _userId {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception(
+        'User belum login',
+      );
+    }
+
+    return user.uid;
+  }
+
+  CollectionReference<
+      Map<String, dynamic>>
+  get _mealPlanCollection =>
+      _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection(
+        'meal_plans',
+      );
 
   Future<List<MealPlanModel>>
   getMealPlans() async {
-    await Future.delayed(
-      const Duration(milliseconds: 250),
-    );
+    final snapshot =
+    await _mealPlanCollection
+        .orderBy(
+      'createdAt',
+      descending: true,
+    )
+        .get();
 
-    return List<MealPlanModel>.from(
-      _mealPlans,
-    );
+    return snapshot.docs
+        .map(
+          (doc) =>
+          MealPlanModel
+              .fromFirestore(
+            doc,
+          ),
+    )
+        .toList();
   }
 
   Future<void> addMealPlan(
       MealPlanModel mealPlan,
       ) async {
-    await Future.delayed(
-      const Duration(milliseconds: 250),
+    final existing =
+    await _mealPlanCollection
+        .where(
+      'day',
+      isEqualTo:
+      mealPlan.day,
+    )
+        .where(
+      'mealType',
+      isEqualTo:
+      mealPlan
+          .mealType,
+    )
+        .get();
+
+    final batch =
+    _firestore.batch();
+
+    for (final doc
+    in existing.docs) {
+      batch.delete(
+        doc.reference,
+      );
+    }
+
+    batch.set(
+      _mealPlanCollection.doc(
+        mealPlan.id,
+      ),
+      mealPlan.toFirestore(),
     );
 
-    _mealPlans.removeWhere(
-          (meal) {
-        return meal.day ==
-            mealPlan.day &&
-            meal.mealType ==
-                mealPlan.mealType;
-      },
-    );
-
-    _mealPlans.add(
-      mealPlan,
-    );
+    await batch.commit();
   }
 
   Future<void> deleteMealPlan({
     required String day,
     required String mealType,
   }) async {
-    await Future.delayed(
-      const Duration(milliseconds: 250),
-    );
+    final snapshot =
+    await _mealPlanCollection
+        .where(
+      'day',
+      isEqualTo: day,
+    )
+        .where(
+      'mealType',
+      isEqualTo:
+      mealType,
+    )
+        .get();
 
-    _mealPlans.removeWhere(
-          (meal) {
-        return meal.day ==
-            day &&
-            meal.mealType ==
-                mealType;
-      },
-    );
+    final batch =
+    _firestore.batch();
+
+    for (final doc
+    in snapshot.docs) {
+      batch.delete(
+        doc.reference,
+      );
+    }
+
+    await batch.commit();
   }
 
   Future<void> clearDayMeals(
       String day,
       ) async {
-    await Future.delayed(
-      const Duration(milliseconds: 250),
-    );
+    final snapshot =
+    await _mealPlanCollection
+        .where(
+      'day',
+      isEqualTo: day,
+    )
+        .get();
 
-    _mealPlans.removeWhere(
-          (meal) =>
-      meal.day == day,
-    );
+    final batch =
+    _firestore.batch();
+
+    for (final doc
+    in snapshot.docs) {
+      batch.delete(
+        doc.reference,
+      );
+    }
+
+    await batch.commit();
   }
 }

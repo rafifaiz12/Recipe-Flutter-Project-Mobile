@@ -1,4 +1,5 @@
 import 'package:siresep/core/utils/model_parsers.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FavoriteModel {
   final String id;
@@ -30,7 +31,29 @@ class FavoriteModel {
     );
   }
 
+  factory FavoriteModel.fromFirestore(
+      Map<String, dynamic> map,
+      ) {
+    return FavoriteModel(
+      id: map['id'] ?? '',
+      userId: map['userId'] ?? '',
+      recipeId: map['recipeId'] ?? '',
+      createdAt: ModelParsers.parseDateTime(
+        map['createdAt'],
+      ),
+    );
+  }
+
   Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'userId': userId,
+      'recipeId': recipeId,
+      'createdAt': createdAt,
+    };
+  }
+
+  Map<String, dynamic> toFirestore() {
     return {
       'id': id,
       'userId': userId,

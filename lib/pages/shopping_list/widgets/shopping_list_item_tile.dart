@@ -23,6 +23,19 @@ class ShoppingListItemTile
     required this.onDeleteTap,
   });
 
+  String formatQuantity(
+      double quantity,
+      ) {
+    if (quantity ==
+        quantity.roundToDouble()) {
+      return quantity
+          .toInt()
+          .toString();
+    }
+
+    return quantity.toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -113,9 +126,8 @@ class ShoppingListItemTile
           const SizedBox(
             width: AppSizes.spaceS,
           ),
-
           Text(
-            '${item.quantity} ${item.unit}',
+            '${formatQuantity(double.tryParse(item.quantity) ?? 0)} ${item.unit}',
             style: AppTextStyles
                 .smallBold
                 .copyWith(

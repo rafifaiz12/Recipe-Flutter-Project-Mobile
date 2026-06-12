@@ -133,7 +133,14 @@ class RecipeModel {
       difficulty: map['difficulty']?.toString() ?? '',
       ratingAverage: ratingAverage,
       reviewCount: ModelParsers.parseInt(map['reviewCount']),
-      servings: ModelParsers.parseInt(map['servings']),
+      servings:
+      ModelParsers.parseInt(
+        map['servings'],
+      ) <= 0
+          ? 1
+          : ModelParsers.parseInt(
+        map['servings'],
+      ),
       calories: ModelParsers.parseInt(map['calories']),
       isTrending: ModelParsers.parseBool(map['isTrending']),
       ingredients: parsedIngredients,
@@ -142,6 +149,17 @@ class RecipeModel {
       createdAt: _parseRecipeDate(map['createdAt']),
       updatedAt: _parseRecipeDate(map['updatedAt']),
     );
+  }
+
+  factory RecipeModel.fromFirestore(
+      DocumentSnapshot<Map<String, dynamic>> doc,
+      ) {
+    final data = doc.data()!;
+
+    return RecipeModel.fromMap({
+      ...data,
+      'id': doc.id,
+    });
   }
 
   Map<String, dynamic> toMap() {

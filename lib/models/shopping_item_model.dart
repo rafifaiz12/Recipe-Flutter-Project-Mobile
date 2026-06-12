@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:siresep/core/utils/model_parsers.dart';
 
 class ShoppingItemModel {
@@ -56,9 +57,44 @@ class ShoppingItemModel {
     );
   }
 
+  factory ShoppingItemModel.fromFirestore(
+      DocumentSnapshot doc,
+      ) {
+    final data =
+    doc.data() as Map<String, dynamic>;
+
+    return ShoppingItemModel(
+      id: doc.id,
+      userId: data['userId'] ?? '',
+      name: data['name'] ?? '',
+      quantity: data['quantity'] ?? '',
+      unit: data['unit'] ?? '',
+      category: data['category'] ?? '',
+      isChecked: data['isChecked'] ?? false,
+      isManual: data['isManual'] ?? false,
+      createdAt:
+      ModelParsers.parseDateTime(
+        data['createdAt'],
+      ),
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'userId': userId,
+      'name': name,
+      'quantity': quantity,
+      'unit': unit,
+      'category': category,
+      'isChecked': isChecked,
+      'isManual': isManual,
+      'createdAt': createdAt,
+    };
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
       'userId': userId,
       'name': name,
       'quantity': quantity,

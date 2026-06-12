@@ -1,25 +1,66 @@
-import 'package:siresep/core/utils/dummy_data.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:siresep/models/favorite_model.dart';
 import 'package:siresep/models/recipe_model.dart';
 
 class FavoriteService {
-  Future<List<RecipeModel>> getFavoriteRecipes() async {
-    await Future.delayed(
-      const Duration(milliseconds: 300),
+  final FirebaseFirestore _firestore =
+      FirebaseFirestore.instance;
+
+  final FirebaseAuth _auth =
+      FirebaseAuth.instance;
+
+  CollectionReference<Map<String, dynamic>>
+  get _favoritesCollection {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception(
+        'User belum login',
+      );
+    }
+
+    return _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('favorites');
+  }
+
+  CollectionReference<Map<String, dynamic>>
+  get _recipesCollection {
+    return _firestore.collection(
+      'recipes',
     );
+  }
+
+  Future<List<RecipeModel>>
+  getFavoriteRecipes() async {
+    final favoriteSnapshot =
+    await _favoritesCollection.get();
+
+    if (favoriteSnapshot.docs.isEmpty) {
+      return [];
+    }
 
     final favoriteRecipeIds =
-    DummyData.favorites
+    favoriteSnapshot.docs
         .map(
-          (favorite) => favorite.recipeId,
+          (doc) =>
+      doc.data()['recipeId']
+      as String,
     )
         .toList();
 
-    return DummyData.recipes
+    final recipesSnapshot =
+    await _recipesCollection.get();
+
+    return recipesSnapshot.docs
         .where(
-          (recipe) =>
-          favoriteRecipeIds.contains(recipe.id),
+          (doc) => favoriteRecipeIds.contains(doc.id),
+    )
+        .map(
+          (doc) => RecipeModel.fromFirestore(doc),
     )
         .toList();
   }
@@ -27,45 +68,95 @@ class FavoriteService {
   Future<bool> isFavorite(
       String recipeId,
       ) async {
-    await Future.delayed(
-      const Duration(milliseconds: 150),
-    );
+    final snapshot =
+    await _favoritesCollection
+        .where(
+      'recipeId',
+      isEqualTo: recipeId,
+    )
+        .limit(1)
+        .get();
 
-    return DummyData.favorites.any(
-          (favorite) =>
-      favorite.recipeId == recipeId,
-    );
+    return snapshot.docs.isNotEmpty;
   }
 
   Future<void> toggleFavorite(
       String recipeId,
       ) async {
-    await Future.delayed(
-      const Duration(milliseconds: 200),
-    );
+    final existingFavorite =
+    await _favoritesCollection
+        .where(
+      'recipeId',
+      isEqualTo: recipeId,
+    )
+        .limit(1)
+        .get();
 
-    final existingIndex =
-    DummyData.favorites.indexWhere(
-          (favorite) =>
-      favorite.recipeId == recipeId,
-    );
-
-    if (existingIndex != -1) {
-      DummyData.favorites.removeAt(
-        existingIndex,
-      );
+    if (existingFavorite.docs.isNotEmpty) {
+      await existingFavorite
+          .docs
+          .first
+          .reference
+          .delete();
 
       return;
     }
 
-    DummyData.favorites.add(
-      FavoriteModel(
-        id:
-        'favorite_${DateTime.now().millisecondsSinceEpoch}',
-        userId: 'temporary_user',
-        recipeId: recipeId,
-        createdAt: DateTime.now(),
-      ),
+    final favoriteId =
+        'favorite_${DateTime.now().millisecondsSinceEpoch}';
+
+    final user =
+    FirebaseAuth.instance.currentUser!;
+
+    final favorite = FavoriteModel(
+      id: favoriteId,
+      userId: user.uid,
+      recipeId: recipeId,
+      createdAt: DateTime.now(),
     );
+
+    await _favoritesCollection
+        .doc(favoriteId)
+        .set(
+      favorite.toMap(),
+    );
+  }
+
+  Future<void> removeFavorite(
+      String recipeId,
+      ) async {
+    final snapshot =
+    await _favoritesCollection
+        .where(
+      'recipeId',
+      isEqualTo: recipeId,
+    )
+        .limit(1)
+        .get();
+
+    if (snapshot.docs.isEmpty) {
+      return;
+    }
+
+    await snapshot
+        .docs
+        .first
+        .reference
+        .delete();
+  }
+
+  Future<List<FavoriteModel>>
+  getFavorites() async {
+    final snapshot =
+    await _favoritesCollection.get();
+
+    return snapshot.docs
+        .map(
+          (doc) =>
+          FavoriteModel.fromMap(
+            doc.data(),
+          ),
+    )
+        .toList();
   }
 }

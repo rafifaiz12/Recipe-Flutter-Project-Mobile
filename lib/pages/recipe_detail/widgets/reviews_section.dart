@@ -8,28 +8,35 @@ import 'package:siresep/models/review_model.dart';
 
 import 'package:siresep/pages/recipe_detail/widgets/review_card.dart';
 
-class ReviewsSection
-    extends StatelessWidget {
-  final List<ReviewModel>
-  reviews;
+class ReviewsSection extends StatelessWidget {
+  final List<ReviewModel> reviews;
 
-  final VoidCallback
-  onWriteReviewTap;
+  final int totalReviews;
+
+  final bool isLoading;
+
+  final VoidCallback onWriteReviewTap;
 
   final String Function(
       DateTime date,
-      )
-  formatReviewDate;
+      ) formatReviewDate;
 
   const ReviewsSection({
     super.key,
     required this.reviews,
+    required this.totalReviews,
+    required this.isLoading,
     required this.onWriteReviewTap,
     required this.formatReviewDate,
   });
 
   @override
   Widget build(BuildContext context) {
+    final reviewLabel =
+    totalReviews == 1
+        ? 'review'
+        : 'reviews';
+
     return Column(
       crossAxisAlignment:
       CrossAxisAlignment.start,
@@ -40,12 +47,10 @@ class ReviewsSection
               child: Text(
                 'Rating & Reviews',
                 style:
-                AppTextStyles.h1
-                    .copyWith(
+                AppTextStyles.h1.copyWith(
                   fontSize: 24,
                   fontWeight:
-                  FontWeight
-                      .w700,
+                  FontWeight.w700,
                 ),
               ),
             ),
@@ -54,17 +59,13 @@ class ReviewsSection
               onPressed:
               onWriteReviewTap,
               child: Text(
-                'Tulis Review',
+                'Write Review',
                 style:
-                AppTextStyles
-                    .body
-                    .copyWith(
+                AppTextStyles.body.copyWith(
                   color:
-                  AppColors
-                      .primary,
+                  AppColors.primary,
                   fontWeight:
-                  FontWeight
-                      .w600,
+                  FontWeight.w600,
                 ),
               ),
             ),
@@ -72,63 +73,83 @@ class ReviewsSection
         ),
 
         const SizedBox(
-          height:
-          AppSizes.spaceXS,
+          height: AppSizes.spaceXS,
         ),
 
         Text(
-          '${reviews.length} reviews',
+          '$totalReviews $reviewLabel',
           style:
-          AppTextStyles
-              .bodySecondary
+          AppTextStyles.bodySecondary
               .copyWith(
             fontSize: 16,
           ),
         ),
 
         const SizedBox(
-          height:
-          AppSizes.spaceL,
+          height: AppSizes.spaceL,
         ),
 
-        ...reviews.asMap().entries.map(
-              (entry) {
-            final int index =
-                entry.key;
+        if (isLoading)
+          const Center(
+            child:
+            CircularProgressIndicator(),
+          )
+        else if (reviews.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(
+              AppSizes.paddingL,
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.card,
+              borderRadius:
+              BorderRadius.circular(
+                AppSizes.radiusM,
+              ),
+              border: Border.all(
+                color: AppColors.border,
+              ),
+            ),
+            child: Text(
+              'Belum ada review untuk resep ini.',
+              style:
+              AppTextStyles.bodySecondary,
+            ),
+          )
+        else
+          ...reviews.asMap().entries.map(
+                (entry) {
+              final index = entry.key;
 
-            final review =
-                entry.value;
+              final review =
+                  entry.value;
 
-            return Column(
-              children: [
-                ReviewCard(
-                  review: review,
-                  formatReviewDate:
-                  formatReviewDate,
-                ),
-
-                if (index !=
-                    reviews.length -
-                        1)
-                  const Divider(
-                    height: 1,
-                    color:
-                    AppColors
-                        .border,
+              return Column(
+                children: [
+                  ReviewCard(
+                    review: review,
+                    formatReviewDate:
+                    formatReviewDate,
                   ),
 
-                if (index !=
-                    reviews.length -
-                        1)
-                  const SizedBox(
-                    height:
-                    AppSizes
-                        .spaceL,
-                  ),
-              ],
-            );
-          },
-        ),
+                  if (index !=
+                      reviews.length - 1)
+                    const Divider(
+                      height: 1,
+                      color:
+                      AppColors.border,
+                    ),
+
+                  if (index !=
+                      reviews.length - 1)
+                    const SizedBox(
+                      height:
+                      AppSizes.spaceL,
+                    ),
+                ],
+              );
+            },
+          ),
       ],
     );
   }

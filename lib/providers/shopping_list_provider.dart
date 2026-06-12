@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:siresep/models/recipe_model.dart';
 import 'package:siresep/models/shopping_item_model.dart';
 
@@ -7,6 +8,9 @@ import 'package:siresep/services/shopping_list_service.dart';
 
 class ShoppingListProvider
     extends ChangeNotifier {
+  ShoppingListProvider() {
+    loadItems();
+  }
   final ShoppingListService
   _service =
   ShoppingListService();
@@ -116,17 +120,25 @@ class ShoppingListProvider
           (
           ingredient,
           ) {
-        final scaledQuantity =
-            (ingredient.quantity /
-                recipe
-                    .servings) *
-                selectedServings;
+            final baseServings =
+            recipe.servings <= 0
+                ? 1
+                : recipe.servings;
+
+            final scaledQuantity =
+                (ingredient.quantity /
+                    baseServings) *
+                    selectedServings;
 
         return ShoppingItemModel(
           id:
           '${recipe.id}_${ingredient.name}_${DateTime.now().millisecondsSinceEpoch}',
           userId:
-          'temporary_user',
+          FirebaseAuth
+              .instance
+              .currentUser
+              ?.uid ??
+              '',
           name:
           ingredient
               .name,

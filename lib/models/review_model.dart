@@ -1,4 +1,5 @@
 import 'package:siresep/core/utils/model_parsers.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ReviewModel {
   final String id;
@@ -49,6 +50,29 @@ class ReviewModel {
     );
   }
 
+  factory ReviewModel.fromFirestore(
+      Map<String, dynamic> map,
+      ) {
+    return ReviewModel(
+      id: map['id'] ?? '',
+      recipeId: map['recipeId'] ?? '',
+      userId: map['userId'] ?? '',
+      userName: map['userName'] ?? '',
+      userPhotoUrl:
+      map['userPhotoUrl'] ?? '',
+      rating:
+      ModelParsers.parseInt(
+        map['rating'],
+      ),
+      comment:
+      map['comment'] ?? '',
+      createdAt:
+      ModelParsers.parseDateTime(
+        map['createdAt'],
+      ),
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -56,6 +80,24 @@ class ReviewModel {
       'userId': userId,
       'userName': userName,
       'userPhotoUrl': userPhotoUrl,
+      'rating': rating,
+      'comment': comment,
+      'createdAt':
+      Timestamp.fromDate(
+        createdAt,
+      ),
+    };
+  }
+
+  Map<String, dynamic>
+  toFirestore() {
+    return {
+      'id': id,
+      'recipeId': recipeId,
+      'userId': userId,
+      'userName': userName,
+      'userPhotoUrl':
+      userPhotoUrl,
       'rating': rating,
       'comment': comment,
       'createdAt': createdAt,

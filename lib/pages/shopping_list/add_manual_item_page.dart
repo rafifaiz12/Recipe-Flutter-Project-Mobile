@@ -4,6 +4,7 @@ import 'package:siresep/core/constants/app_sizes.dart';
 import 'package:siresep/core/constants/app_text_styles.dart';
 import 'package:siresep/core/widgets/custom_text_field.dart';
 import 'package:siresep/models/shopping_item_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AddManualItemPage extends StatefulWidget {
   const AddManualItemPage({super.key});
@@ -47,7 +48,12 @@ class _AddManualItemPageState extends State<AddManualItemPage> {
       id: DateTime.now()
           .millisecondsSinceEpoch
           .toString(),
-      userId: 'temporary_user',
+      userId:
+      FirebaseAuth
+          .instance
+          .currentUser
+          ?.uid ??
+          '',
       name: _itemNameController.text
           .trim(),
       quantity:

@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:siresep/core/utils/dummy_data.dart';
@@ -21,6 +23,9 @@ class ProfileProvider extends ChangeNotifier {
 
   UserModel? get user => _user;
 
+  int _savedRecipesCount = 0;
+  int _reviewsCount = 0;
+
   bool get isLoading => _isLoading;
 
   bool get isUpdating => _isUpdating;
@@ -33,9 +38,7 @@ class ProfileProvider extends ChangeNotifier {
   |--------------------------------------------------------------------------
   */
 
-  int get savedRecipesCount {
-    return DummyData.favorites.length;
-  }
+  int get savedRecipesCount => _savedRecipesCount;
 
   int get plannedMealsCount {
     return DummyData.mealPlans.length;
@@ -45,15 +48,7 @@ class ProfileProvider extends ChangeNotifier {
     return DummyData.shoppingItems.length;
   }
 
-  int get reviewsCount {
-    if (_user == null) {
-      return 0;
-    }
-
-    return DummyData.reviews
-        .where((review) => review.userId == _user!.id)
-        .length;
-  }
+  int get reviewsCount => _reviewsCount;
 
   /*
   |--------------------------------------------------------------------------
@@ -68,9 +63,13 @@ class ProfileProvider extends ChangeNotifier {
 
     try {
       _errorMessage = null;
+
       _user = await _service.getCurrentUser();
+
+      await loadStats();
     } catch (e) {
       _errorMessage = e.toString();
+
       _user = null;
     } finally {
       _isLoading = false;
@@ -229,8 +228,57 @@ class ProfileProvider extends ChangeNotifier {
     }
   }
 
-  void refreshStats() {
-    notifyListeners();
+  Future<void> loadStats() async {
+    final currentUser =
+        FirebaseAuth.instance.currentUser;
+
+    if (currentUser == null) {
+      return;
+    }
+
+    try {
+      // FAVORITES
+      final favoritesSnapshot =
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('favorites')
+          .get();
+
+      _savedRecipesCount =
+          favoritesSnapshot.docs.length;
+
+      // REVIEWS
+      final reviewsSnapshot =
+      await FirebaseFirestore.instance
+          .collectionGroup('reviews')
+          .where(
+        'userId',
+        isEqualTo: currentUser.uid,
+      )
+          .get();
+
+      _reviewsCount =
+          reviewsSnapshot.docs.length;
+
+      debugPrint(
+        'Favorites Count: $_savedRecipesCount',
+      );
+
+      debugPrint(
+        'Reviews Count: $_reviewsCount',
+      );
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint(
+        'LOAD STATS ERROR: $e',
+      );
+    }
+  }
+
+  Future<void> refreshStats() async {
+    await loadStats();
   }
 
   /*
