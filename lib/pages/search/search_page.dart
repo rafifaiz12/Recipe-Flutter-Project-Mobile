@@ -451,15 +451,7 @@ class _RecipeSearchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final reviewProvider =
-    context.watch<
-        ReviewProvider>();
-
-    final rating =
-    reviewProvider
-        .averageRating(
-      recipe.id,
-    );
+    final rating = recipe.ratingAverage;
     return GestureDetector(
       onTap: onTap,
       child: Container(

@@ -249,17 +249,14 @@ class ProfileProvider extends ChangeNotifier {
           favoritesSnapshot.docs.length;
 
       // REVIEWS
-      final reviewsSnapshot =
+      final userDoc =
       await FirebaseFirestore.instance
-          .collectionGroup('reviews')
-          .where(
-        'userId',
-        isEqualTo: currentUser.uid,
-      )
+          .collection('users')
+          .doc(currentUser.uid)
           .get();
 
       _reviewsCount =
-          reviewsSnapshot.docs.length;
+          userDoc.data()?['reviewCount'] ?? 0;
 
       debugPrint(
         'Favorites Count: $_savedRecipesCount',

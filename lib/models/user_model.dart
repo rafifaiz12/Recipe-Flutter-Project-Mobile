@@ -15,6 +15,8 @@ class UserModel {
 
   final DateTime createdAt;
 
+  final int reviewCount;
+
   const UserModel({
     required this.id,
     required this.name,
@@ -23,6 +25,7 @@ class UserModel {
     required this.role,
     required this.dietaryPreferences,
     required this.createdAt,
+    this.reviewCount = 0,
   });
 
   UserModel copyWith({
@@ -33,6 +36,7 @@ class UserModel {
     String? role,
     List<String>? dietaryPreferences,
     DateTime? createdAt,
+    int? reviewCount,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -42,6 +46,8 @@ class UserModel {
       role: role ?? this.role,
       dietaryPreferences: dietaryPreferences ?? this.dietaryPreferences,
       createdAt: createdAt ?? this.createdAt,
+      reviewCount:
+      reviewCount ?? this.reviewCount,
     );
   }
 
@@ -54,6 +60,7 @@ class UserModel {
       'role': role,
       'dietaryPreferences': dietaryPreferences,
       'createdAt': createdAt.toIso8601String(),
+      'reviewCount': reviewCount,
     };
   }
 
@@ -94,6 +101,9 @@ class UserModel {
           : [],
 
       createdAt: parseDate(map['createdAt']),
+      reviewCount:
+      (map['reviewCount'] ?? 0)
+      as int,
     );
   }
 }

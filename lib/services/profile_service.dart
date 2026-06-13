@@ -50,6 +50,7 @@ class ProfileService {
       photoUrl: firebaseUser.photoURL ?? '',
       role: 'user',
       dietaryPreferences: [],
+      reviewCount: 0,
       createdAt: firebaseUser.metadata.creationTime ?? DateTime.now(),
     );
 

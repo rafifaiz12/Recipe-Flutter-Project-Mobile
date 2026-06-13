@@ -60,11 +60,16 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  Future<void> _onSearchChanged(String value) async {
-    await context.read<RecipeProvider>().searchRecipes(value);
+  void _onSearchChanged(
+      String value,
+      ) {
+    context
+        .read<RecipeProvider>()
+        .searchRecipes(value);
 
     setState(() {
-      _showSuggestions = value.trim().isNotEmpty;
+      _showSuggestions =
+          value.trim().isNotEmpty;
     });
   }
 
@@ -212,11 +217,14 @@ class _HomePageState extends State<HomePage> {
                                     const Divider(height: 1),
                                 itemBuilder: (context, index) {
                                   final recipe = searchResults[index];
+                                  final rating = recipe.ratingAverage;
 
                                   return ListTile(
                                     title: Text(recipe.title),
                                     subtitle: Text(
-                                      '${recipe.cookTimeMinutes} min • ${recipe.difficulty}',
+                                      '${recipe.cookTimeMinutes} min • '
+                                          '${recipe.difficulty} • '
+                                          '⭐ ${rating.toStringAsFixed(1)}',
                                     ),
                                     onTap: () => _goToRecipeDetail(recipe.id),
                                   );
@@ -361,8 +369,9 @@ class _HorizontalRecipeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final reviewProvider = context.watch<ReviewProvider>();
-    final rating = reviewProvider.averageRating(recipe.id);
+
+    final rating =
+        recipe.ratingAverage;
 
     return GestureDetector(
       onTap: onTap,
@@ -428,8 +437,9 @@ class _VerticalRecipeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final reviewProvider = context.watch<ReviewProvider>();
-    final rating = reviewProvider.averageRating(recipe.id);
+
+    final rating =
+        recipe.ratingAverage;
 
     return GestureDetector(
       onTap: onTap,

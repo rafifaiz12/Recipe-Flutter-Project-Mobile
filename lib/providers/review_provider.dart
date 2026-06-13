@@ -115,6 +115,14 @@ class ReviewProvider extends ChangeNotifier {
         review.toMap(),
       );
 
+      await _firestore
+          .collection('users')
+          .doc(user.uid)
+          .update({
+        'reviewCount':
+        FieldValue.increment(1),
+      });
+
       debugPrint(
         'Review berhasil disimpan',
       );

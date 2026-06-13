@@ -39,24 +39,22 @@ class RecipeProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> searchRecipes(String query) async {
+  void searchRecipes(
+      String query,
+      ) {
     if (query.trim().isEmpty) {
       _searchResults = [];
-      notifyListeners();
-      return;
+    } else {
+      _searchResults =
+          _recipes.where((recipe) {
+            return recipe.title
+                .toLowerCase()
+                .contains(
+              query.toLowerCase(),
+            );
+          }).toList();
     }
 
-    _isLoading = true;
-    _errorMessage = null;
     notifyListeners();
-
-    try {
-      _searchResults = await _recipeService.searchRecipes(query);
-    } catch (e) {
-      _errorMessage = e.toString();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
   }
 }
