@@ -66,7 +66,7 @@ class _ProfilePageState extends State<ProfilePage> {
     Navigator.pushNamedAndRemoveUntil(
       context,
       AppRoutes.login,
-      (route) => false,
+          (route) => false,
     );
   }
 
@@ -212,15 +212,15 @@ class _ProfileHeader extends StatelessWidget {
               backgroundColor: Colors.white,
               backgroundImage: _hasImage
                   ? (imageUrl!.startsWith('http')
-                        ? NetworkImage(imageUrl!)
-                        : FileImage(File(imageUrl!)) as ImageProvider)
+                  ? NetworkImage(imageUrl!)
+                  : FileImage(File(imageUrl!)) as ImageProvider)
                   : null,
               child: !_hasImage
                   ? const Icon(
-                      Icons.person,
-                      size: AppSizes.iconL,
-                      color: AppColors.textSecondary,
-                    )
+                Icons.person,
+                size: AppSizes.iconL,
+                color: AppColors.textSecondary,
+              )
                   : null,
             ),
           ),

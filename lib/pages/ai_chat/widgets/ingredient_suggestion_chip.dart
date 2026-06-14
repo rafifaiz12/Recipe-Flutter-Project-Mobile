@@ -8,12 +8,12 @@ class IngredientSuggestionChip
     extends StatelessWidget {
   final String label;
 
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const IngredientSuggestionChip({
     super.key,
     required this.label,
-    required this.onTap,
+    this.onTap,
   });
 
   @override

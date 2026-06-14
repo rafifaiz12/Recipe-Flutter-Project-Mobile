@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'app/app.dart';
 
@@ -15,16 +16,23 @@ import 'package:siresep/providers/meal_plan_provider.dart';
 import 'package:siresep/providers/profile_provider.dart';
 import 'package:siresep/providers/ai_chat_provider.dart';
 import 'package:siresep/providers/review_provider.dart';
+import 'package:siresep/providers/meal_plan_template_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await dotenv.load(fileName: ".env");
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()..restoreSession()),
+        ChangeNotifierProvider(
+          create: (_) => AuthProvider()..restoreSession(),
+        ),
         ChangeNotifierProvider(create: (_) => RecipeProvider()),
         ChangeNotifierProvider(create: (_) => FavoriteProvider()),
         ChangeNotifierProvider(create: (_) => RecipeDetailProvider()),
@@ -32,6 +40,9 @@ void main() async {
           create: (_) => ShoppingListProvider()..loadItems(),
         ),
         ChangeNotifierProvider(create: (_) => MealPlanProvider()),
+        ChangeNotifierProvider(
+          create: (_) => MealPlanTemplateProvider()..listenTemplates(),
+        ),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => AiChatProvider()),
         ChangeNotifierProvider(create: (_) => ReviewProvider()),

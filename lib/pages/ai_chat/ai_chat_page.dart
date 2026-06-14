@@ -100,6 +100,12 @@ class _AiChatPageState
         AiChatProvider
     >();
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (provider.messages.isNotEmpty) {
+        _scrollToBottom();
+      }
+    });
+
     return Scaffold(
       backgroundColor:
       AppColors.background,
@@ -108,6 +114,16 @@ class _AiChatPageState
           'AI Recipe Assistant',
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.delete_outline,
+            ),
+            onPressed: () async {
+              await provider.clearChat();
+            },
+          ),
+        ],
       ),
       body: provider.isLoading
           ? const Center(
@@ -236,10 +252,10 @@ class _AiChatPageState
                 return IngredientSuggestionChip(
                   label:
                   ingredient,
-                  onTap:
-                      () {
-                    provider
-                        .addIngredientToInput(
+                  onTap: provider.isTyping
+                      ? null
+                      : () {
+                    provider.addIngredientToInput(
                       ingredient,
                     );
                   },

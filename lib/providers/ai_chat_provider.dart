@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:siresep/models/chat_message_model.dart';
-
 import 'package:siresep/services/ai_chat_service.dart';
 
-class AiChatProvider
-    extends ChangeNotifier {
-  final AiChatService
-  _service =
-  AiChatService();
+class AiChatProvider extends ChangeNotifier {
+  final AiChatService _service = AiChatService();
 
-  final TextEditingController
-  messageController =
+  final TextEditingController messageController =
   TextEditingController();
 
-  final List<String>
-  ingredientSuggestions = [
+  final List<String> ingredientSuggestions = [
     'Telur',
     'Nasi',
     'Ayam',
@@ -26,28 +21,27 @@ class AiChatProvider
     'Tomat',
   ];
 
-  List<ChatMessageModel>
-  _messages = [];
+  List<ChatMessageModel> _messages = [];
 
   bool _isTyping = false;
 
   bool _isLoading = false;
 
-  final String _userId =
-      'temporary_user';
-
-  final String _sessionId =
-      'default_session';
-
-  List<ChatMessageModel>
-  get messages => _messages;
+  List<ChatMessageModel> get messages =>
+      _messages;
 
   bool get isTyping => _isTyping;
 
   bool get isLoading => _isLoading;
 
-  Future<void> initializeChat()
-  async {
+  String get _userId =>
+      FirebaseAuth.instance.currentUser?.uid ??
+          '';
+
+  String get _sessionId =>
+      'default_session';
+
+  Future<void> initializeChat() async {
     if (_messages.isNotEmpty) {
       return;
     }
@@ -57,9 +51,25 @@ class AiChatProvider
     notifyListeners();
 
     try {
+      final history =
+      await _service.loadChatHistory(
+        userId: _userId,
+        sessionId: _sessionId,
+      );
+
+      if (history.isNotEmpty) {
+        _messages = history;
+      } else {
+        _messages =
+        await _service.loadInitialMessages();
+      }
+    } catch (e) {
+      debugPrint(
+        'CHAT INIT ERROR: $e',
+      );
+
       _messages =
-      await _service
-          .loadInitialMessages();
+      await _service.loadInitialMessages();
     } finally {
       _isLoading = false;
 
@@ -71,8 +81,7 @@ class AiChatProvider
       String ingredient,
       ) {
     final currentText =
-    messageController.text
-        .trim();
+    messageController.text.trim();
 
     if (currentText.isEmpty) {
       messageController.text =
@@ -86,30 +95,24 @@ class AiChatProvider
         TextSelection.fromPosition(
           TextPosition(
             offset:
-            messageController
-                .text
-                .length,
+            messageController.text.length,
           ),
         );
 
     notifyListeners();
   }
 
-  Future<void> sendMessage()
-  async {
+  Future<void> sendMessage() async {
     final text =
-    messageController.text
-        .trim();
+    messageController.text.trim();
 
-    if (text.isEmpty ||
-        _isTyping) {
+    if (text.isEmpty || _isTyping) {
       return;
     }
 
     final userMessage =
     ChatMessageModel(
-      id:
-      DateTime.now()
+      id: DateTime.now()
           .millisecondsSinceEpoch
           .toString(),
       userId: _userId,
@@ -117,8 +120,7 @@ class AiChatProvider
       _sessionId,
       isUser: true,
       message: text,
-      createdAt:
-      DateTime.now(),
+      createdAt: DateTime.now(),
     );
 
     _messages.add(userMessage);
@@ -129,17 +131,15 @@ class AiChatProvider
 
     notifyListeners();
 
-    await _service.saveMessage(
-      userMessage,
-    );
-
     try {
+      await _service.saveMessage(
+        userMessage,
+      );
+
       final aiMessage =
-      await _service
-          .generateAiResponse(
+      await _service.generateAiResponse(
         userId: _userId,
-        sessionId:
-        _sessionId,
+        sessionId: _sessionId,
         prompt: text,
       );
 
@@ -148,6 +148,10 @@ class AiChatProvider
       await _service.saveMessage(
         aiMessage,
       );
+    } catch (e) {
+      debugPrint(
+        'SEND MESSAGE ERROR: $e',
+      );
     } finally {
       _isTyping = false;
 
@@ -155,18 +159,22 @@ class AiChatProvider
     }
   }
 
-  Future<void> clearChat()
-  async {
-    _messages = [];
+  Future<void> clearChat() async {
+    try {
+      await _service.clearChatHistory(
+        userId: _userId,
+        sessionId: _sessionId,
+      );
 
-    notifyListeners();
+      _messages =
+      await _service.loadInitialMessages();
 
-    await _service
-        .clearChatHistory(
-      _sessionId,
-    );
-
-    await initializeChat();
+      notifyListeners();
+    } catch (e) {
+      debugPrint(
+        'CLEAR CHAT ERROR: $e',
+      );
+    }
   }
 
   @override

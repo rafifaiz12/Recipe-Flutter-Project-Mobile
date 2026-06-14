@@ -1,5 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:siresep/models/user_model.dart';
 
 class AuthService {
@@ -7,31 +7,23 @@ class AuthService {
       firebase_auth.FirebaseAuth.instance;
 
   final CollectionReference<Map<String, dynamic>> _usersCollection =
-      FirebaseFirestore.instance.collection('users');
+  FirebaseFirestore.instance.collection('users');
 
   static UserModel? _currentUser;
 
-  static UserModel? get currentUser {
-    final firebaseUser = firebase_auth.FirebaseAuth.instance.currentUser;
+  static UserModel? get currentUser => _currentUser;
+
+  Future<UserModel?> restoreSession() async {
+    final firebaseUser = _firebaseAuth.currentUser;
 
     if (firebaseUser == null) {
-      return _currentUser;
+      _currentUser = null;
+      return null;
     }
 
-    _currentUser = UserModel(
-      id: firebaseUser.uid,
-      name:
-          firebaseUser.displayName ??
-          firebaseUser.email?.split('@').first ??
-          'User',
-      email: firebaseUser.email ?? '',
-      photoUrl: firebaseUser.photoURL ?? '',
-      role: 'user',
-      dietaryPreferences: [],
-      createdAt: firebaseUser.metadata.creationTime ?? DateTime.now(),
-    );
-
-    return _currentUser;
+    final user = await _validateAndBuildUser(firebaseUser);
+    _currentUser = user;
+    return user;
   }
 
   Future<UserModel> login({
@@ -49,19 +41,7 @@ class AuthService {
       throw Exception('Login gagal. User tidak ditemukan.');
     }
 
-    final user = UserModel(
-      id: firebaseUser.uid,
-      name:
-          firebaseUser.displayName ??
-          firebaseUser.email?.split('@').first ??
-          'User',
-      email: firebaseUser.email ?? email,
-      photoUrl: firebaseUser.photoURL ?? '',
-      role: 'user',
-      dietaryPreferences: [],
-      createdAt: firebaseUser.metadata.creationTime ?? DateTime.now(),
-    );
-
+    final user = await _validateAndBuildUser(firebaseUser);
     _currentUser = user;
 
     return user;
@@ -97,6 +77,8 @@ class AuthService {
 
     await _usersCollection.doc(firebaseUser.uid).set({
       ...user.toMap(),
+      'status': 'Aktif',
+      'reviewCount': 0,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
@@ -104,6 +86,39 @@ class AuthService {
     _currentUser = user;
 
     return user;
+  }
+
+  Future<UserModel> _validateAndBuildUser(
+      firebase_auth.User firebaseUser,
+      ) async {
+    final doc = await _usersCollection.doc(firebaseUser.uid).get();
+
+    if (!doc.exists || doc.data() == null) {
+      await logout();
+      throw Exception('Akun Anda tidak ditemukan atau telah dinonaktifkan.');
+    }
+
+    final data = doc.data()!;
+    final status = data['status']?.toString().trim().toLowerCase() ?? 'aktif';
+
+    if (status == 'suspended') {
+      await logout();
+      throw Exception('Akun Anda sedang disuspend oleh admin.');
+    }
+
+    return UserModel(
+      id: firebaseUser.uid,
+      name:
+      data['name']?.toString() ??
+          firebaseUser.displayName ??
+          firebaseUser.email?.split('@').first ??
+          'User',
+      email: data['email']?.toString() ?? firebaseUser.email ?? '',
+      photoUrl: data['photoUrl']?.toString() ?? firebaseUser.photoURL ?? '',
+      role: data['role']?.toString() ?? 'user',
+      dietaryPreferences: [],
+      createdAt: firebaseUser.metadata.creationTime ?? DateTime.now(),
+    );
   }
 
   Future<void> logout() async {

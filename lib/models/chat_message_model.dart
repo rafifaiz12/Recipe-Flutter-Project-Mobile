@@ -13,6 +13,8 @@ class ChatMessageModel {
 
   final DateTime createdAt;
 
+  final bool isLoading;
+
   const ChatMessageModel({
     required this.id,
     required this.userId,
@@ -20,6 +22,7 @@ class ChatMessageModel {
     required this.isUser,
     required this.message,
     required this.createdAt,
+    this.isLoading = false,
   });
 
   factory ChatMessageModel.fromMap(
@@ -53,6 +56,8 @@ class ChatMessageModel {
       ModelParsers.parseDateTime(
         map['createdAt'],
       ),
+
+      isLoading: map['isLoading'] == true,
     );
   }
 
@@ -65,6 +70,7 @@ class ChatMessageModel {
       'isUser': isUser,
       'message': message,
       'createdAt': createdAt,
+      'isLoading': isLoading,
     };
   }
 
@@ -75,6 +81,7 @@ class ChatMessageModel {
     bool? isUser,
     String? message,
     DateTime? createdAt,
+    bool? isLoading,
   }) {
     return ChatMessageModel(
       id: id ?? this.id,
@@ -95,6 +102,8 @@ class ChatMessageModel {
       createdAt:
       createdAt ??
           this.createdAt,
+
+      isLoading: isLoading ?? this.isLoading,
     );
   }
 }

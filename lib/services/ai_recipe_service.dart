@@ -1,69 +1,96 @@
+import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class AiRecipeService {
-  Future<String>
-  generateRecipeRecommendation(
-      String ingredients,
-      ) async {
-    await Future.delayed(
-      const Duration(seconds: 2),
+  static final String _apiKey =
+      dotenv.env['GEMINI_API_KEY'] ?? '';
+
+  late final GenerativeModel _model;
+
+  AiRecipeService() {
+    _model = GenerativeModel(
+      model: 'gemini-2.5-flash',
+      apiKey: _apiKey,
+      generationConfig: GenerationConfig(
+        temperature: 0.7,
+        maxOutputTokens: 1200,
+      ),
     );
+  }
 
-    final lowerIngredients =
-    ingredients.toLowerCase();
+  Future<String> generateRecipeRecommendation(
+      String userPrompt,
+      ) async {
+    try {
+      final prompt = '''
+Kamu adalah AI Recipe Assistant untuk aplikasi SiResep.
 
-    if (lowerIngredients
-        .contains('telur') &&
-        lowerIngredients
-            .contains('nasi')) {
-      return '''
-Berdasarkan bahan yang kamu punya, kamu bisa membuat:
+Tugasmu adalah memberikan resep makanan berdasarkan bahan yang diberikan pengguna.
 
-🍳 Nasi Goreng Telur
+ATURAN WAJIB:
 
-Bahan:
-- Nasi
-- Telur
-- Bawang
-- Cabai
+- Gunakan Bahasa Indonesia.
+- Jangan gunakan Markdown.
+- Jangan gunakan simbol:
+  ###, ##, #, **, *, ---, >.
+- Jangan gunakan format tabel.
+- Jangan gunakan emoji.
+- Berikan jawaban dalam teks biasa.
 
-Cara memasak:
-1. Tumis bawang dan cabai.
-2. Masukkan telur lalu orak-arik.
-3. Tambahkan nasi.
-4. Aduk hingga matang.
+Gunakan format berikut:
 
-Selamat mencoba 👨‍🍳
-''';
-    }
+Nama Resep:
+...
 
-    if (lowerIngredients
-        .contains('ayam')) {
-      return '''
-🍗 Ayam Tumis Pedas
+Deskripsi:
+...
 
 Bahan:
-- Ayam
-- Bawang
-- Cabai
-- Kecap
+1. ...
+2. ...
+3. ...
 
-Cara memasak:
-1. Tumis bawang dan cabai.
-2. Masukkan ayam.
-3. Tambahkan kecap.
-4. Masak hingga matang.
+Langkah Memasak:
+1. ...
+2. ...
+3. ...
 
-Selamat memasak 🔥
+Estimasi Waktu:
+...
+
+Input pengguna:
+
+$userPrompt
 ''';
+
+      for (int attempt = 0; attempt < 3; attempt++) {
+        try {
+          final response =
+          await _model.generateContent([
+            Content.text(prompt),
+          ]);
+
+          return response.text ??
+              'Maaf, saya tidak dapat menghasilkan jawaban saat ini.';
+        } catch (e) {
+          if (attempt == 2) {
+            rethrow;
+          }
+
+          await Future.delayed(
+            const Duration(seconds: 2),
+          );
+        }
+      }
+      return 'Maaf, saya tidak dapat menghasilkan jawaban saat ini.';
+    } catch (e) {
+      print('AI ERROR: $e');
+
+      return '''
+    Maaf, layanan AI sedang sibuk saat ini.
+    
+    Silakan coba lagi beberapa saat lagi.
+    ''';
     }
-
-    return '''
-Saya menemukan beberapa ide resep berdasarkan bahan yang kamu masukkan:
-
-🥘 Tumis Sederhana
-🍳 Omelette Rumahan
-🍲 Sup Praktis
-
-Coba tambahkan bahan yang lebih detail agar rekomendasi resep lebih akurat 😊
-''';
   }
 }

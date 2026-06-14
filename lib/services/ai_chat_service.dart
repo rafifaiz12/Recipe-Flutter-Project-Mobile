@@ -1,18 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:siresep/models/chat_message_model.dart';
 
 import 'package:siresep/services/ai_recipe_service.dart';
 
 class AiChatService {
-  final AiRecipeService
-  _aiRecipeService =
+  final AiRecipeService _aiRecipeService =
   AiRecipeService();
+
+  final FirebaseFirestore _firestore =
+      FirebaseFirestore.instance;
 
   Future<List<ChatMessageModel>>
   loadInitialMessages() async {
-    await Future.delayed(
-      const Duration(milliseconds: 250),
-    );
-
     return [
       ChatMessageModel(
         id: 'welcome_message',
@@ -41,8 +41,7 @@ class AiChatService {
     );
 
     return ChatMessageModel(
-      id:
-      DateTime.now()
+      id: DateTime.now()
           .millisecondsSinceEpoch
           .toString(),
       userId: userId,
@@ -58,22 +57,76 @@ class AiChatService {
   Future<void> saveMessage(
       ChatMessageModel message,
       ) async {
-    await Future.delayed(
-      const Duration(milliseconds: 150),
-    );
-
-    // TODO:
-    // Save chat message to Firestore
+    await _firestore
+        .collection('users')
+        .doc(message.userId)
+        .collection(
+      'chat_sessions',
+    )
+        .doc(
+      message.chatSessionId,
+    )
+        .collection('messages')
+        .doc(message.id)
+        .set(message.toMap());
   }
 
-  Future<void> clearChatHistory(
-      String sessionId,
-      ) async {
-    await Future.delayed(
-      const Duration(milliseconds: 200),
-    );
+  Future<List<ChatMessageModel>>
+  loadChatHistory({
+    required String userId,
+    required String sessionId,
+  }) async {
+    final snapshot =
+    await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection(
+      'chat_sessions',
+    )
+        .doc(sessionId)
+        .collection('messages')
+        .orderBy(
+      'createdAt',
+      descending: false,
+    )
+        .get();
 
-    // TODO:
-    // Delete session messages from Firestore
+    return snapshot.docs
+        .map(
+          (doc) =>
+          ChatMessageModel
+              .fromMap(
+            doc.data(),
+          ),
+    )
+        .toList();
+  }
+
+  Future<void> clearChatHistory({
+    required String userId,
+    required String sessionId,
+  }) async {
+    final snapshot =
+    await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection(
+      'chat_sessions',
+    )
+        .doc(sessionId)
+        .collection('messages')
+        .get();
+
+    final batch =
+    _firestore.batch();
+
+    for (final doc
+    in snapshot.docs) {
+      batch.delete(
+        doc.reference,
+      );
+    }
+
+    await batch.commit();
   }
 }
