@@ -269,7 +269,9 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const ShoppingListPage(),
+                              builder: (_) => const ShoppingListPage(
+                                showBackButton: true,
+                              ),
                             ),
                           );
 

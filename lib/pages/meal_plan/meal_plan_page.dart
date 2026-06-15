@@ -403,7 +403,11 @@ class _MealPlanPageState extends State<MealPlanPage> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const ShoppingListPage()),
+      MaterialPageRoute(
+        builder: (_) => const ShoppingListPage(
+          showBackButton: true,
+        ),
+      ),
     );
   }
 

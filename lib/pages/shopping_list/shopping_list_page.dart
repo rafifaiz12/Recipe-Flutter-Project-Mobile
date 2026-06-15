@@ -17,7 +17,12 @@ import 'package:siresep/pages/shopping_list/widgets/shopping_list_section.dart';
 import 'package:siresep/providers/shopping_list_provider.dart';
 
 class ShoppingListPage extends StatefulWidget {
-  const ShoppingListPage({super.key});
+  final bool showBackButton;
+
+  const ShoppingListPage({
+    super.key,
+    this.showBackButton = false,
+  });
 
   @override
   State<ShoppingListPage> createState() => _ShoppingListPageState();
@@ -71,6 +76,7 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
                 totalItemsCount: provider.totalItems,
                 progressValue: provider.progressValue,
                 onClearChecked: _showClearCheckedDialog,
+                showBackButton: widget.showBackButton,
               ),
 
               const SizedBox(height: AppSizes.spaceL),
@@ -193,11 +199,14 @@ class _ShoppingListHeader extends StatelessWidget {
 
   final VoidCallback onClearChecked;
 
+  final bool showBackButton;
+
   const _ShoppingListHeader({
     required this.checkedItemsCount,
     required this.totalItemsCount,
     required this.progressValue,
     required this.onClearChecked,
+    required this.showBackButton,
   });
 
   @override
@@ -206,9 +215,21 @@ class _ShoppingListHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Shopping List', style: AppTextStyles.h1),
+            if (showBackButton)
+              IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Icons.arrow_back),
+              ),
+
+            Expanded(
+              child: Text(
+                'Shopping List',
+                style: AppTextStyles.h1,
+              ),
+            ),
 
             if (checkedItemsCount > 0)
               Material(
@@ -220,7 +241,10 @@ class _ShoppingListHeader extends StatelessWidget {
                   child: const SizedBox(
                     width: 42,
                     height: 42,
-                    child: Icon(Icons.delete_outline, color: AppColors.error),
+                    child: Icon(
+                      Icons.delete_outline,
+                      color: AppColors.error,
+                    ),
                   ),
                 ),
               ),
