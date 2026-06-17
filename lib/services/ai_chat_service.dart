@@ -21,7 +21,7 @@ class AiChatService {
         'default_session',
         isUser: false,
         message:
-        'Halo! Saya AI Recipe Assistant SiResep. Sebutkan bahan makanan yang kamu punya, nanti saya bantu rekomendasikan resep yang bisa kamu masak.',
+        'Hello! Im your SiResep AI Recipe Assistant. Tell the ingredients you have, then I will help recommend recipes that you can cook.',
         createdAt:
         DateTime.now(),
       ),

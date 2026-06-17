@@ -23,55 +23,56 @@ class AiRecipeService {
       ) async {
     try {
       final prompt = '''
-Kamu adalah AI Recipe Assistant untuk aplikasi SiResep.
+You are the AI Recipe Assistant for the SiResep application.
 
-Tugasmu adalah memberikan resep makanan berdasarkan bahan yang diberikan pengguna.
+Your task is to recommend recipes based on ingredients provided by the user.
 
-ATURAN WAJIB:
+MANDATORY RULES:
 
-- Gunakan Bahasa Indonesia.
-- Jangan gunakan Markdown.
-- Jangan gunakan simbol:
+- Always respond in English.
+- Do not use Markdown.
+- Do not use symbols such as:
   ###, ##, #, **, *, ---, >.
-- Jangan gunakan format tabel.
-- Jangan gunakan emoji.
-- Berikan jawaban dalam teks biasa.
+- Do not use tables.
+- Do not use emojis.
+- Return plain text only.
+- Be friendly and helpful.
+- If the ingredients are insufficient, suggest additional ingredients that would improve the recipe.
 
-Gunakan format berikut:
+Use the following format:
 
-Nama Resep:
+Recipe Name:
 ...
 
-Deskripsi:
+Description:
 ...
 
-Bahan:
+Ingredients:
 1. ...
 2. ...
 3. ...
 
-Langkah Memasak:
+Cooking Steps:
 1. ...
 2. ...
 3. ...
 
-Estimasi Waktu:
+Estimated Time:
 ...
 
-Input pengguna:
+User Input:
 
 $userPrompt
 ''';
 
       for (int attempt = 0; attempt < 3; attempt++) {
         try {
-          final response =
-          await _model.generateContent([
+          final response = await _model.generateContent([
             Content.text(prompt),
           ]);
 
           return response.text ??
-              'Maaf, saya tidak dapat menghasilkan jawaban saat ini.';
+              'Sorry, I am unable to generate a response at the moment.';
         } catch (e) {
           if (attempt == 2) {
             rethrow;
@@ -82,15 +83,16 @@ $userPrompt
           );
         }
       }
-      return 'Maaf, saya tidak dapat menghasilkan jawaban saat ini.';
+
+      return 'Sorry, I am unable to generate a response at the moment.';
     } catch (e) {
       print('AI ERROR: $e');
 
       return '''
-    Maaf, layanan AI sedang sibuk saat ini.
-    
-    Silakan coba lagi beberapa saat lagi.
-    ''';
+Sorry, the AI service is currently busy.
+
+Please try again in a few moments.
+''';
     }
   }
 }

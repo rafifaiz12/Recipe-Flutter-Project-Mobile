@@ -92,7 +92,7 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
                     icon: Icons.shopping_cart_outlined,
                     title: 'Shopping list is empty',
                     subtitle:
-                    'Tambahkan item manual atau generate dari recipe detail.',
+                    'Add items manually or generate them from recipe details.',
                   ),
                 )
               else
@@ -127,7 +127,7 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
 
     if (provider.checkedItems == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Belum ada item yang dicentang.')),
+        const SnackBar(content: Text('No items have been checked yet.')),
       );
       return;
     }
@@ -137,9 +137,9 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: const Text('Hapus Item Selesai'),
+              title: const Text('Item Delete Success.'),
               content: Text(
-                '${provider.checkedItems} item yang sudah dicentang akan dihapus.',
+                '${provider.checkedItems} checked items will be deleted.',
               ),
               actions: [
                 Row(
@@ -149,7 +149,7 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
                         onPressed: () {
                           Navigator.pop(context, false);
                         },
-                        child: const Text('Batal'),
+                        child: const Text('Cancel'),
                       ),
                     ),
 
@@ -163,7 +163,7 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
                         onPressed: () {
                           Navigator.pop(context, true);
                         },
-                        child: const Text('Hapus'),
+                        child: const Text('Delete'),
                       ),
                     ),
                   ],
@@ -185,7 +185,7 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Item selesai berhasil dihapus.')),
+      const SnackBar(content: Text('Items deleted.')),
     );
   }
 }

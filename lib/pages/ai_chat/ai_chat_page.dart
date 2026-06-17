@@ -200,7 +200,7 @@ class _AiChatPageState
 
                 Expanded(
                   child: Text(
-                    'Masukkan bahan makanan yang tersedia, misalnya: telur, nasi, bawang, cabai.',
+                    'Add the available ingredients, example: eggs, rice, onions, chilies.',
                     style:
                     AppTextStyles
                         .bodySecondary
@@ -351,7 +351,7 @@ class _AiChatPageState
                     decoration:
                     InputDecoration(
                       hintText:
-                      'Tulis bahan yang kamu punya...',
+                      'Tell the ingredients ypu have...',
                       hintStyle:
                       AppTextStyles
                           .bodySecondary,
@@ -473,7 +473,7 @@ class _TypingBubble
           ],
         ),
         child: Text(
-          'AI sedang mengetik...',
+          'AI Assistant is typing...',
           style: AppTextStyles
               .bodySecondary,
         ),

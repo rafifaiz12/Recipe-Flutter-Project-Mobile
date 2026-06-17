@@ -11,14 +11,14 @@ class AiChatProvider extends ChangeNotifier {
   TextEditingController();
 
   final List<String> ingredientSuggestions = [
-    'Telur',
-    'Nasi',
-    'Ayam',
-    'Tahu',
-    'Tempe',
-    'Bawang',
-    'Cabai',
-    'Tomat',
+    'Eggs',
+    'Rice',
+    'Onions',
+    'Chicken',
+    'Chilli',
+    'Tomato',
+    'Bread',
+    'Avocado',
   ];
 
   List<ChatMessageModel> _messages = [];

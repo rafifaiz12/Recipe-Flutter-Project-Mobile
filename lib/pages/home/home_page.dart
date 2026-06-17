@@ -346,7 +346,7 @@ class _AiRecipeAssistantCard extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSizes.spaceXS),
                   Text(
-                    'Masukkan bahan yang tersedia dan dapatkan rekomendasi resep.',
+                    'Tell us your available ingredients and get recipe recommendations.',
                     style: AppTextStyles.bodySecondary.copyWith(
                       color: Colors.white.withValues(alpha: 0.88),
                     ),

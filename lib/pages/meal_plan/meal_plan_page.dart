@@ -61,9 +61,9 @@ class _MealPlanPageState extends State<MealPlanPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Gunakan Template'),
+          title: const Text('Use Template'),
           content: const Text(
-            'Template ini akan mengisi planner mingguan Anda.',
+            'This template will fill your weekly meal planner.',
           ),
           actions: [
             Row(
@@ -73,7 +73,7 @@ class _MealPlanPageState extends State<MealPlanPage> {
                     onPressed: () {
                       Navigator.pop(context, false);
                     },
-                    child: const Text('Batal'),
+                    child: const Text('Cancel'),
                   ),
                 ),
 
@@ -87,7 +87,7 @@ class _MealPlanPageState extends State<MealPlanPage> {
                     onPressed: () {
                       Navigator.pop(context, true);
                     },
-                    child: const Text('Gunakan'),
+                    child: const Text('Use'),
                   ),
                 ),
               ],
@@ -161,7 +161,7 @@ class _MealPlanPageState extends State<MealPlanPage> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('Tutup'),
+              child: const Text('Close'),
             ),
           ],
         );
@@ -185,7 +185,7 @@ class _MealPlanPageState extends State<MealPlanPage> {
 
         if (templateProvider.templates.isEmpty) {
           return Text(
-            'Belum ada template meal plan dari admin.',
+            'There is no template yet.',
             style: AppTextStyles.bodySecondary,
           );
         }
@@ -195,7 +195,7 @@ class _MealPlanPageState extends State<MealPlanPage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Template dari Admin', style: AppTextStyles.h2),
+            Text('Available Template', style: AppTextStyles.h2),
 
             const SizedBox(height: AppSizes.spaceM),
 
@@ -279,7 +279,7 @@ class _MealPlanPageState extends State<MealPlanPage> {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text(
-                                          'Template berhasil digunakan.',
+                                          'Template succesfully used.',
                                         ),
                                       ),
                                     );
@@ -297,7 +297,7 @@ class _MealPlanPageState extends State<MealPlanPage> {
                                     );
                                   }
                                 },
-                                child: const Text('Gunakan'),
+                                child: const Text('Use'),
                               ),
                             ),
                           ],
@@ -594,8 +594,8 @@ class _MealPlanPageState extends State<MealPlanPage> {
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: const Text('Hapus Semua Meal Plan'),
-              content: const Text('Semua meal plan mingguan akan dihapus.'),
+              title: const Text('Delete All Meal Plan'),
+              content: const Text('All weekly meal plan will be deleted.'),
               actions: [
                 Row(
                   children: [
@@ -604,7 +604,7 @@ class _MealPlanPageState extends State<MealPlanPage> {
                         onPressed: () {
                           Navigator.pop(context, false);
                         },
-                        child: const Text('Batal'),
+                        child: const Text('Cancel'),
                       ),
                     ),
 
@@ -618,7 +618,7 @@ class _MealPlanPageState extends State<MealPlanPage> {
                         onPressed: () {
                           Navigator.pop(context, true);
                         },
-                        child: const Text('Hapus'),
+                        child: const Text('Delete'),
                       ),
                     ),
                   ],
@@ -640,7 +640,7 @@ class _MealPlanPageState extends State<MealPlanPage> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Semua meal plan berhasil dihapus.')),
+      const SnackBar(content: Text('All meal plan successfully deleted.')),
     );
   }
 }
