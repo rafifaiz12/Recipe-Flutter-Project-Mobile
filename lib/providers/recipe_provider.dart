@@ -21,31 +21,17 @@ class RecipeProvider extends ChangeNotifier {
   List<RecipeModel> get searchResults => _searchResults;
 
   List<RecipeModel> get recommendedRecipes {
-    final candidates =
-    _recipes
-        .where(
-          (recipe) =>
-      !recipe.isTrending,
-    )
-        .toList();
+    final candidates = _recipes.where((recipe) => !recipe.isTrending).toList();
 
     candidates.sort((a, b) {
-      final scoreA =
-          a.ratingAverage *
-              a.reviewCount;
+      final scoreA = a.ratingAverage * a.reviewCount;
 
-      final scoreB =
-          b.ratingAverage *
-              b.reviewCount;
+      final scoreB = b.ratingAverage * b.reviewCount;
 
-      return scoreB.compareTo(
-        scoreA,
-      );
+      return scoreB.compareTo(scoreA);
     });
 
-    return candidates
-        .take(5)
-        .toList();
+    return candidates.take(5).toList();
   }
 
   bool get isLoading => _isLoading;
@@ -58,7 +44,7 @@ class RecipeProvider extends ChangeNotifier {
 
     try {
       _recipes = await _recipeService.getRecipes();
-      _trendingRecipes = _recipes.where((recipe) => recipe.isTrending).toList();
+      _trendingRecipes = await _recipeService.getTrendingRecipes();
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
@@ -67,20 +53,13 @@ class RecipeProvider extends ChangeNotifier {
     }
   }
 
-  void searchRecipes(
-      String query,
-      ) {
+  void searchRecipes(String query) {
     if (query.trim().isEmpty) {
       _searchResults = [];
     } else {
-      _searchResults =
-          _recipes.where((recipe) {
-            return recipe.title
-                .toLowerCase()
-                .contains(
-              query.toLowerCase(),
-            );
-          }).toList();
+      _searchResults = _recipes.where((recipe) {
+        return recipe.title.toLowerCase().contains(query.toLowerCase());
+      }).toList();
     }
 
     notifyListeners();

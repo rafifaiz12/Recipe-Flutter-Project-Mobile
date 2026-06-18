@@ -33,8 +33,14 @@ class RecipeService {
   }
 
   Future<List<RecipeModel>> getTrendingRecipes() async {
-    final recipes = await getRecipes();
-    return recipes.where((recipe) => recipe.isTrending).toList();
+    final snapshot = await _recipesCollection
+        .where('trending', isEqualTo: true)
+        .get();
+
+    return snapshot.docs
+        .where((doc) => _isPublished(doc.data()))
+        .map((doc) => RecipeModel.fromMap({'id': doc.id, ...doc.data()}))
+        .toList();
   }
 
   Future<List<RecipeModel>> searchRecipes(String query) async {
