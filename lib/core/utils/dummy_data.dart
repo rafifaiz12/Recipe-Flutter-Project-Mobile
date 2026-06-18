@@ -14,71 +14,44 @@ class DummyData {
     email: 'bagus@example.com',
     photoUrl: '',
     role: 'user',
-    dietaryPreferences: [
-      'High Protein',
-      'Low Sugar',
-    ],
+    dietaryPreferences: ['High Protein', 'Low Sugar'],
     createdAt: DateTime.now(),
   );
 
-  static final List<CategoryModel>
-  categories = [
-    CategoryModel(
-      id: 'cat_001',
-      name: 'All',
-      icon: 'apps',
-    ),
+  static final List<CategoryModel> categories = [
+    CategoryModel(id: 'cat_001', name: 'All', icon: 'apps'),
 
-    CategoryModel(
-      id: 'cat_002',
-      name: 'Breakfast',
-      icon: 'free_breakfast',
-    ),
+    CategoryModel(id: 'cat_002', name: 'Breakfast', icon: 'free_breakfast'),
 
-    CategoryModel(
-      id: 'cat_003',
-      name: 'Lunch',
-      icon: 'lunch_dining',
-    ),
+    CategoryModel(id: 'cat_003', name: 'Lunch', icon: 'lunch_dining'),
 
-    CategoryModel(
-      id: 'cat_004',
-      name: 'Dinner',
-      icon: 'dinner_dining',
-    ),
+    CategoryModel(id: 'cat_004', name: 'Dinner', icon: 'dinner_dining'),
 
-    CategoryModel(
-      id: 'cat_005',
-      name: 'Dessert',
-      icon: 'icecream',
-    ),
+    CategoryModel(id: 'cat_005', name: 'Dessert', icon: 'icecream'),
 
-    CategoryModel(
-      id: 'cat_006',
-      name: 'Healthy',
-      icon: 'eco',
-    ),
+    CategoryModel(id: 'cat_006', name: 'Healthy', icon: 'eco'),
   ];
 
-  static final List<RecipeModel>
-  recipes = [
+  static final List<RecipeModel> recipes = [
     RecipeModel(
       id: 'recipe_001',
 
-      title:
-      'Creamy Pasta Carbonara',
+      title: 'Creamy Pasta Carbonara',
 
       description:
-      'Pasta creamy klasik dengan saus telur, parmesan, dan beef bacon.',
+          'Pasta creamy klasik dengan saus telur, parmesan, dan beef bacon.',
 
       imageUrl:
-      'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?q=80&w=1200&auto=format&fit=crop',
 
       categoryId: 'cat_004',
 
       categoryName: 'Dinner',
 
+      dishType: 'Makanan Utama',
       cuisine: 'Italian',
+      mealType: 'Dinner',
+      dietType: 'Regular',
 
       cookTimeMinutes: 25,
 
@@ -94,47 +67,22 @@ class DummyData {
 
       isTrending: true,
 
-      createdBy:
-      currentUser.id,
+      createdBy: currentUser.id,
 
-      createdAt:
-      DateTime.now(),
+      createdAt: DateTime.now(),
 
-      updatedAt:
-      DateTime.now(),
+      updatedAt: DateTime.now(),
 
       ingredients: [
-        IngredientModel(
-          name: 'Spaghetti',
-          quantity: 200,
-          unit: 'g',
-        ),
+        IngredientModel(name: 'Spaghetti', quantity: 200, unit: 'g'),
 
-        IngredientModel(
-          name: 'Egg',
-          quantity: 2,
-          unit: 'pcs',
-        ),
+        IngredientModel(name: 'Egg', quantity: 2, unit: 'pcs'),
 
-        IngredientModel(
-          name:
-          'Parmesan Cheese',
-          quantity: 50,
-          unit: 'g',
-        ),
+        IngredientModel(name: 'Parmesan Cheese', quantity: 50, unit: 'g'),
 
-        IngredientModel(
-          name: 'Beef Bacon',
-          quantity: 100,
-          unit: 'g',
-        ),
+        IngredientModel(name: 'Beef Bacon', quantity: 100, unit: 'g'),
 
-        IngredientModel(
-          name:
-          'Black Pepper',
-          quantity: 1,
-          unit: 'tsp',
-        ),
+        IngredientModel(name: 'Black Pepper', quantity: 1, unit: 'tsp'),
       ],
 
       instructions: [
@@ -153,20 +101,21 @@ class DummyData {
     RecipeModel(
       id: 'recipe_002',
 
-      title:
-      'Grilled Salmon Bowl',
+      title: 'Grilled Salmon Bowl',
 
-      description:
-      'Healthy grilled salmon bowl with vegetables and rice.',
+      description: 'Healthy grilled salmon bowl with vegetables and rice.',
 
       imageUrl:
-      'https://images.unsplash.com/photo-1467003909585-2f8a72700288?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1467003909585-2f8a72700288?q=80&w=1200&auto=format&fit=crop',
 
       categoryId: 'cat_006',
 
       categoryName: 'Healthy',
 
+      dishType: 'Makanan Utama',
       cuisine: 'Japanese',
+      mealType: 'Lunch',
+      dietType: 'High Protein',
 
       cookTimeMinutes: 35,
 
@@ -182,46 +131,22 @@ class DummyData {
 
       isTrending: true,
 
-      createdBy:
-      currentUser.id,
+      createdBy: currentUser.id,
 
-      createdAt:
-      DateTime.now(),
+      createdAt: DateTime.now(),
 
-      updatedAt:
-      DateTime.now(),
+      updatedAt: DateTime.now(),
 
       ingredients: [
-        IngredientModel(
-          name:
-          'Salmon Fillet',
-          quantity: 2,
-          unit: 'pcs',
-        ),
+        IngredientModel(name: 'Salmon Fillet', quantity: 2, unit: 'pcs'),
 
-        IngredientModel(
-          name: 'Rice',
-          quantity: 200,
-          unit: 'g',
-        ),
+        IngredientModel(name: 'Rice', quantity: 200, unit: 'g'),
 
-        IngredientModel(
-          name: 'Broccoli',
-          quantity: 100,
-          unit: 'g',
-        ),
+        IngredientModel(name: 'Broccoli', quantity: 100, unit: 'g'),
 
-        IngredientModel(
-          name: 'Carrot',
-          quantity: 1,
-          unit: 'pcs',
-        ),
+        IngredientModel(name: 'Carrot', quantity: 1, unit: 'pcs'),
 
-        IngredientModel(
-          name: 'Olive Oil',
-          quantity: 2,
-          unit: 'tbsp',
-        ),
+        IngredientModel(name: 'Olive Oil', quantity: 2, unit: 'tbsp'),
       ],
 
       instructions: [
@@ -240,20 +165,22 @@ class DummyData {
     RecipeModel(
       id: 'recipe_003',
 
-      title:
-      'Chicken Caesar Salad',
+      title: 'Chicken Caesar Salad',
 
       description:
-      'Fresh romaine lettuce with grilled chicken and creamy caesar dressing.',
+          'Fresh romaine lettuce with grilled chicken and creamy caesar dressing.',
 
       imageUrl:
-      'https://images.unsplash.com/photo-1546793665-c74683f339c1?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1546793665-c74683f339c1?q=80&w=1200&auto=format&fit=crop',
 
       categoryId: 'cat_006',
 
       categoryName: 'Healthy',
 
+      dishType: 'Makanan Utama',
       cuisine: 'Western',
+      mealType: 'Lunch',
+      dietType: 'Regular',
 
       cookTimeMinutes: 20,
 
@@ -269,49 +196,22 @@ class DummyData {
 
       isTrending: false,
 
-      createdBy:
-      currentUser.id,
+      createdBy: currentUser.id,
 
-      createdAt:
-      DateTime.now(),
+      createdAt: DateTime.now(),
 
-      updatedAt:
-      DateTime.now(),
+      updatedAt: DateTime.now(),
 
       ingredients: [
-        IngredientModel(
-          name:
-          'Chicken Breast',
-          quantity: 200,
-          unit: 'g',
-        ),
+        IngredientModel(name: 'Chicken Breast', quantity: 200, unit: 'g'),
 
-        IngredientModel(
-          name:
-          'Romaine Lettuce',
-          quantity: 1,
-          unit: 'pcs',
-        ),
+        IngredientModel(name: 'Romaine Lettuce', quantity: 1, unit: 'pcs'),
 
-        IngredientModel(
-          name:
-          'Caesar Dressing',
-          quantity: 3,
-          unit: 'tbsp',
-        ),
+        IngredientModel(name: 'Caesar Dressing', quantity: 3, unit: 'tbsp'),
 
-        IngredientModel(
-          name: 'Croutons',
-          quantity: 50,
-          unit: 'g',
-        ),
+        IngredientModel(name: 'Croutons', quantity: 50, unit: 'g'),
 
-        IngredientModel(
-          name:
-          'Parmesan Cheese',
-          quantity: 30,
-          unit: 'g',
-        ),
+        IngredientModel(name: 'Parmesan Cheese', quantity: 30, unit: 'g'),
       ],
 
       instructions: [
@@ -330,20 +230,21 @@ class DummyData {
     RecipeModel(
       id: 'recipe_004',
 
-      title:
-      'Classic Pancakes',
+      title: 'Classic Pancakes',
 
-      description:
-      'Soft fluffy pancakes perfect for breakfast.',
+      description: 'Soft fluffy pancakes perfect for breakfast.',
 
       imageUrl:
-      'https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=1200&auto=format&fit=crop',
 
       categoryId: 'cat_002',
 
       categoryName: 'Breakfast',
 
+      dishType: 'Dessert',
       cuisine: 'American',
+      mealType: 'Breakfast',
+      dietType: 'Regular',
 
       cookTimeMinutes: 15,
 
@@ -359,46 +260,22 @@ class DummyData {
 
       isTrending: false,
 
-      createdBy:
-      currentUser.id,
+      createdBy: currentUser.id,
 
-      createdAt:
-      DateTime.now(),
+      createdAt: DateTime.now(),
 
-      updatedAt:
-      DateTime.now(),
+      updatedAt: DateTime.now(),
 
       ingredients: [
-        IngredientModel(
-          name: 'Flour',
-          quantity: 250,
-          unit: 'g',
-        ),
+        IngredientModel(name: 'Flour', quantity: 250, unit: 'g'),
 
-        IngredientModel(
-          name: 'Milk',
-          quantity: 200,
-          unit: 'ml',
-        ),
+        IngredientModel(name: 'Milk', quantity: 200, unit: 'ml'),
 
-        IngredientModel(
-          name: 'Egg',
-          quantity: 1,
-          unit: 'pcs',
-        ),
+        IngredientModel(name: 'Egg', quantity: 1, unit: 'pcs'),
 
-        IngredientModel(
-          name: 'Sugar',
-          quantity: 2,
-          unit: 'tbsp',
-        ),
+        IngredientModel(name: 'Sugar', quantity: 2, unit: 'tbsp'),
 
-        IngredientModel(
-          name:
-          'Baking Powder',
-          quantity: 1,
-          unit: 'tsp',
-        ),
+        IngredientModel(name: 'Baking Powder', quantity: 1, unit: 'tsp'),
       ],
 
       instructions: [
@@ -415,8 +292,7 @@ class DummyData {
     ),
   ];
 
-  static final List<ReviewModel>
-  reviews = [
+  static final List<ReviewModel> reviews = [
     ReviewModel(
       id: 'review_001',
 
@@ -427,17 +303,14 @@ class DummyData {
       userName: 'Sarah Johnson',
 
       userPhotoUrl:
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400&auto=format&fit=crop',
 
       rating: 5,
 
       comment:
-      'Absolutely delicious! The pasta was creamy and flavorful. Definitely making this again.',
+          'Absolutely delicious! The pasta was creamy and flavorful. Definitely making this again.',
 
-      createdAt:
-      DateTime.parse(
-        '2025-05-01',
-      ),
+      createdAt: DateTime.parse('2025-05-01'),
     ),
 
     ReviewModel(
@@ -450,17 +323,14 @@ class DummyData {
       userName: 'Michael Lee',
 
       userPhotoUrl:
-      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400&auto=format&fit=crop',
 
       rating: 4,
 
       comment:
-      'Very tasty recipe. I added extra parmesan cheese and it turned out amazing.',
+          'Very tasty recipe. I added extra parmesan cheese and it turned out amazing.',
 
-      createdAt:
-      DateTime.parse(
-        '2025-05-03',
-      ),
+      createdAt: DateTime.parse('2025-05-03'),
     ),
 
     ReviewModel(
@@ -473,17 +343,14 @@ class DummyData {
       userName: 'Amanda Wilson',
 
       userPhotoUrl:
-      'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=400&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=400&auto=format&fit=crop',
 
       rating: 5,
 
       comment:
-      'Healthy and super easy to prepare. The salmon was perfectly juicy.',
+          'Healthy and super easy to prepare. The salmon was perfectly juicy.',
 
-      createdAt:
-      DateTime.parse(
-        '2025-05-05',
-      ),
+      createdAt: DateTime.parse('2025-05-05'),
     ),
 
     ReviewModel(
@@ -496,17 +363,14 @@ class DummyData {
       userName: 'Daniel Kim',
 
       userPhotoUrl:
-      'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=400&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=400&auto=format&fit=crop',
 
       rating: 4,
 
       comment:
-      'Great healthy meal option. I replaced broccoli with asparagus and it still worked perfectly.',
+          'Great healthy meal option. I replaced broccoli with asparagus and it still worked perfectly.',
 
-      createdAt:
-      DateTime.parse(
-        '2025-05-08',
-      ),
+      createdAt: DateTime.parse('2025-05-08'),
     ),
 
     ReviewModel(
@@ -519,17 +383,13 @@ class DummyData {
       userName: 'Jessica Brown',
 
       userPhotoUrl:
-      'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=400&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=400&auto=format&fit=crop',
 
       rating: 5,
 
-      comment:
-      'Fresh, light, and delicious. Perfect for lunch.',
+      comment: 'Fresh, light, and delicious. Perfect for lunch.',
 
-      createdAt:
-      DateTime.parse(
-        '2025-05-10',
-      ),
+      createdAt: DateTime.parse('2025-05-10'),
     ),
 
     ReviewModel(
@@ -542,141 +402,74 @@ class DummyData {
       userName: 'Ryan Martinez',
 
       userPhotoUrl:
-      'https://images.unsplash.com/photo-1504593811423-6dd665756598?q=80&w=400&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1504593811423-6dd665756598?q=80&w=400&auto=format&fit=crop',
 
       rating: 5,
 
-      comment:
-      'These pancakes were incredibly fluffy. My family loved them.',
+      comment: 'These pancakes were incredibly fluffy. My family loved them.',
 
-      createdAt:
-      DateTime.parse(
-        '2025-05-12',
-      ),
+      createdAt: DateTime.parse('2025-05-12'),
     ),
   ];
 
-  static final List<
-      FavoriteModel
-  >
-  favorites = [];
+  static final List<FavoriteModel> favorites = [];
 
-  static final List<
-      MealPlanModel
-  >
-  mealPlans = [
+  static final List<MealPlanModel> mealPlans = [
     MealPlanModel(
       id: 'meal_001',
       userId: 'user_001',
       day: 'Mon',
       mealType: 'Breakfast',
       recipeId: 'recipe_001',
-      createdAt:
-      DateTime.now(),
+      createdAt: DateTime.now(),
     ),
   ];
 
-  static final List<
-      ShoppingItemModel
-  >
-  shoppingItems = [];
+  static final List<ShoppingItemModel> shoppingItems = [];
 
-  static List<RecipeModel>
-  get trendingRecipes {
-    return recipes
-        .where(
-          (recipe) =>
-      recipe.isTrending,
-    )
-        .toList();
+  static List<RecipeModel> get trendingRecipes {
+    return recipes.where((recipe) => recipe.isTrending).toList();
   }
 
-  static List<RecipeModel>
-  get favoriteRecipes {
-    final favoriteIds =
-    favorites
-        .map(
-          (favorite) =>
-      favorite
-          .recipeId,
-    )
-        .toList();
+  static List<RecipeModel> get favoriteRecipes {
+    final favoriteIds = favorites.map((favorite) => favorite.recipeId).toList();
 
-    return recipes
-        .where(
-          (recipe) =>
-          favoriteIds.contains(
-            recipe.id,
-          ),
-    )
-        .toList();
+    return recipes.where((recipe) => favoriteIds.contains(recipe.id)).toList();
   }
 
-  static RecipeModel?
-  recipeById(
-      String recipeId,
-      ) {
+  static RecipeModel? recipeById(String recipeId) {
     try {
-      return recipes.firstWhere(
-            (recipe) =>
-        recipe.id ==
-            recipeId,
-      );
+      return recipes.firstWhere((recipe) => recipe.id == recipeId);
     } catch (_) {
       return null;
     }
   }
 
-  static List<ReviewModel>
-  reviewsByRecipeId(
-      String recipeId,
-      ) {
-    return reviews
-        .where(
-          (review) =>
-      review.recipeId ==
-          recipeId,
-    )
-        .toList();
+  static List<ReviewModel> reviewsByRecipeId(String recipeId) {
+    return reviews.where((review) => review.recipeId == recipeId).toList();
   }
 
-  static bool isFavorite(
-      String recipeId,
-      ) {
-    return favorites.any(
-          (favorite) =>
-      favorite.recipeId ==
-          recipeId,
-    );
+  static bool isFavorite(String recipeId) {
+    return favorites.any((favorite) => favorite.recipeId == recipeId);
   }
 
-  static void toggleFavorite(
-      String recipeId,
-      ) {
-    final existingIndex =
-    favorites.indexWhere(
-          (favorite) =>
-      favorite.recipeId ==
-          recipeId,
+  static void toggleFavorite(String recipeId) {
+    final existingIndex = favorites.indexWhere(
+      (favorite) => favorite.recipeId == recipeId,
     );
 
     if (existingIndex != -1) {
-      favorites.removeAt(
-        existingIndex,
-      );
+      favorites.removeAt(existingIndex);
 
       return;
     }
 
     favorites.add(
       FavoriteModel(
-        id:
-        'favorite_${DateTime.now().microsecondsSinceEpoch}',
-        userId:
-        currentUser.id,
+        id: 'favorite_${DateTime.now().microsecondsSinceEpoch}',
+        userId: currentUser.id,
         recipeId: recipeId,
-        createdAt:
-        DateTime.now(),
+        createdAt: DateTime.now(),
       ),
     );
   }

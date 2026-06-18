@@ -29,6 +29,12 @@ class RecipeModel {
 
   final String categoryName;
 
+  final String dishType;
+
+  final String mealType;
+
+  final String dietType;
+
   final String cuisine;
 
   final int cookTimeMinutes;
@@ -60,9 +66,15 @@ class RecipeModel {
     required this.title,
     required this.description,
     required this.imageUrl,
+
     required this.categoryId,
     required this.categoryName,
+
+    required this.dishType,
     required this.cuisine,
+    required this.mealType,
+    required this.dietType,
+
     required this.cookTimeMinutes,
     required this.difficulty,
     required this.ratingAverage,
@@ -128,7 +140,12 @@ class RecipeModel {
       imageUrl: map['imageUrl']?.toString() ?? '',
       categoryId: map['categoryId']?.toString() ?? '',
       categoryName: categoryName,
+
+      dishType: map['dishType']?.toString() ?? '',
       cuisine: map['cuisine']?.toString() ?? '',
+      mealType: map['mealType']?.toString() ?? '',
+      dietType: map['dietType']?.toString() ?? '',
+
       cookTimeMinutes: ModelParsers.parseInt(map['cookTimeMinutes']),
       difficulty: map['difficulty']?.toString() ?? '',
       ratingAverage: ratingAverage,
@@ -165,10 +182,12 @@ class RecipeModel {
       'imageUrl': imageUrl,
 
       'categoryId': categoryId,
-
       'categoryName': categoryName,
 
+      'dishType': dishType,
       'cuisine': cuisine,
+      'mealType': mealType,
+      'dietType': dietType,
 
       'cookTimeMinutes': cookTimeMinutes,
 
@@ -203,7 +222,10 @@ class RecipeModel {
     String? imageUrl,
     String? categoryId,
     String? categoryName,
+    String? dishType,
     String? cuisine,
+    String? mealType,
+    String? dietType,
     int? cookTimeMinutes,
     String? difficulty,
     double? ratingAverage,
@@ -227,10 +249,12 @@ class RecipeModel {
       imageUrl: imageUrl ?? this.imageUrl,
 
       categoryId: categoryId ?? this.categoryId,
-
       categoryName: categoryName ?? this.categoryName,
 
+      dishType: dishType ?? this.dishType,
       cuisine: cuisine ?? this.cuisine,
+      mealType: mealType ?? this.mealType,
+      dietType: dietType ?? this.dietType,
 
       cookTimeMinutes: cookTimeMinutes ?? this.cookTimeMinutes,
 

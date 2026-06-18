@@ -49,7 +49,10 @@ class RecipeService {
 
     return recipes.where((recipe) {
       return recipe.title.toLowerCase().contains(lowercaseQuery) ||
-          recipe.categoryName.toLowerCase().contains(lowercaseQuery);
+          recipe.dishType.toLowerCase().contains(lowercaseQuery) ||
+          recipe.cuisine.toLowerCase().contains(lowercaseQuery) ||
+          recipe.mealType.toLowerCase().contains(lowercaseQuery) ||
+          recipe.dietType.toLowerCase().contains(lowercaseQuery);
     }).toList();
   }
 
