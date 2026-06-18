@@ -96,7 +96,7 @@ class _HomePageState extends State<HomePage> {
     final recipeProvider = context.watch<RecipeProvider>();
 
     final trendingRecipes = recipeProvider.trendingRecipes;
-    final recommendedRecipes = recipeProvider.recipes;
+    final recommendedRecipes = recipeProvider.recommendedRecipes;
     final searchResults = recipeProvider.searchResults;
 
     return Scaffold(

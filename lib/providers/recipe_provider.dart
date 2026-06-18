@@ -20,6 +20,34 @@ class RecipeProvider extends ChangeNotifier {
 
   List<RecipeModel> get searchResults => _searchResults;
 
+  List<RecipeModel> get recommendedRecipes {
+    final candidates =
+    _recipes
+        .where(
+          (recipe) =>
+      !recipe.isTrending,
+    )
+        .toList();
+
+    candidates.sort((a, b) {
+      final scoreA =
+          a.ratingAverage *
+              a.reviewCount;
+
+      final scoreB =
+          b.ratingAverage *
+              b.reviewCount;
+
+      return scoreB.compareTo(
+        scoreA,
+      );
+    });
+
+    return candidates
+        .take(5)
+        .toList();
+  }
+
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
