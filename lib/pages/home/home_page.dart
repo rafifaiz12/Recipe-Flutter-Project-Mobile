@@ -240,7 +240,7 @@ class _HomePageState extends State<HomePage> {
                         const SectionTitle(title: 'Trending Recipes'),
                         const SizedBox(height: AppSizes.spaceM),
                         SizedBox(
-                          height: 180,
+                          height: 240,
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
                             itemCount: trendingRecipes.length,
@@ -376,8 +376,8 @@ class _HorizontalRecipeCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: SizedBox(
-        width: 150,
-        height: 180,
+        width: 200,
+        height: 240,
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppSizes.radiusXL),

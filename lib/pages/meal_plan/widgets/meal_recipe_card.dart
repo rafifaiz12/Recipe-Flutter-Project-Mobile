@@ -22,6 +22,7 @@ class MealRecipeCard
   Widget build(
       BuildContext context,
       ) {
+    final rating = recipe.ratingAverage;
     return Material(
       color: AppColors.card,
       borderRadius:
@@ -107,13 +108,13 @@ class MealRecipeCard
                 ),
 
                 Text(
-                  '${recipe.servings} porsi • ${recipe.cookTimeMinutes} min',
-                  style:
-                  AppTextStyles
-                      .caption
-                      .copyWith(
-                    color:
-                    AppColors.card,
+                  '${recipe.cookTimeMinutes} min • '
+                      '${recipe.difficulty} • '
+                      '⭐ ${rating.toStringAsFixed(1)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.card,
                   ),
                 ),
               ],

@@ -27,9 +27,13 @@ class _SearchPageState extends State<SearchPage> {
 
   String? _selectedCookingTime;
 
-  String? _selectedCourseType;
+  String? _selectedDishType;
+
+  String? _selectedMealType;
 
   String? _selectedCuisine;
+
+  String? _selectedDietType;
 
   final List<String> _cookingTimeOptions = const [
     '<15 minutes',
@@ -37,16 +41,32 @@ class _SearchPageState extends State<SearchPage> {
     '>1 hour',
   ];
 
-  final List<String> _courseTypeOptions = const [
+  final List<String> _dishTypeOptions = const [
+    'Makanan Utama',
+    'Dessert',
+    'Minuman',
+    'Snack',
+    'Appetizer',
+  ];
+
+  final List<String> _mealTypeOptions = const [
     'Breakfast',
     'Lunch',
     'Dinner',
   ];
 
   final List<String> _cuisineOptions = const [
-    'Eastern',
+    'Nusantara',
     'Asian',
     'Western',
+    'Middle Eastern',
+  ];
+
+  final List<String> _dietTypeOptions = const [
+    'Regular',
+    'Vegetarian',
+    'Vegan',
+    'High Protein',
   ];
 
   @override
@@ -89,19 +109,32 @@ class _SearchPageState extends State<SearchPage> {
               (_selectedCookingTime == '>1 hour' &&
                   cookTime > 60);
 
-      final matchesCourseType =
-          _selectedCourseType == null ||
-              recipe.categoryName ==
-                  _selectedCourseType;
+      final matchesDishType =
+          _selectedDishType == null ||
+              recipe.dishType ==
+                  _selectedDishType;
+
+      final matchesMealType =
+          _selectedMealType == null ||
+              recipe.mealType ==
+                  _selectedMealType;
 
       final matchesCuisine =
           _selectedCuisine == null ||
-              recipe.cuisine == _selectedCuisine;
+              recipe.cuisine ==
+                  _selectedCuisine;
+
+      final matchesDietType =
+          _selectedDietType == null ||
+              recipe.dietType ==
+                  _selectedDietType;
 
       return matchesQuery &&
           matchesCookingTime &&
-          matchesCourseType &&
-          matchesCuisine;
+          matchesDishType &&
+          matchesMealType &&
+          matchesCuisine &&
+          matchesDietType;
     }).toList();
 
     filteredRecipes.sort((a, b) {
@@ -132,10 +165,28 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
-  void _toggleCourseType(String value) {
+  void _toggleDishType(String value) {
     setState(() {
-      _selectedCourseType =
-      _selectedCourseType == value
+      _selectedDishType =
+      _selectedDishType == value
+          ? null
+          : value;
+    });
+  }
+
+  void _toggleMealType(String value) {
+    setState(() {
+      _selectedMealType =
+      _selectedMealType == value
+          ? null
+          : value;
+    });
+  }
+
+  void _toggleDietType(String value) {
+    setState(() {
+      _selectedDietType =
+      _selectedDietType == value
           ? null
           : value;
     });
@@ -148,6 +199,193 @@ class _SearchPageState extends State<SearchPage> {
           ? null
           : value;
     });
+  }
+
+  void _showFilterBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: const EdgeInsets.all(
+                AppSizes.paddingL,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment:
+                  CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 50,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius:
+                          BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    Text(
+                      'Filters',
+                      style: AppTextStyles.h2,
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    _FilterSection(
+                      title: 'Cooking Time',
+                      options: _cookingTimeOptions,
+                      selectedValue:
+                      _selectedCookingTime,
+                      onSelected: (value) {
+                        setState(() {
+                          _selectedCookingTime =
+                          _selectedCookingTime ==
+                              value
+                              ? null
+                              : value;
+                        });
+
+                        setModalState(() {});
+                      },
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    _FilterSection(
+                      title: 'Dish Type',
+                      options: _dishTypeOptions,
+                      selectedValue:
+                      _selectedDishType,
+                      onSelected: (value) {
+                        setState(() {
+                          _selectedDishType =
+                          _selectedDishType ==
+                              value
+                              ? null
+                              : value;
+                        });
+
+                        setModalState(() {});
+                      },
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    _FilterSection(
+                      title: 'Meal Type',
+                      options: _mealTypeOptions,
+                      selectedValue:
+                      _selectedMealType,
+                      onSelected: (value) {
+                        setState(() {
+                          _selectedMealType =
+                          _selectedMealType ==
+                              value
+                              ? null
+                              : value;
+                        });
+
+                        setModalState(() {});
+                      },
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    _FilterSection(
+                      title: 'Cuisine',
+                      options: _cuisineOptions,
+                      selectedValue:
+                      _selectedCuisine,
+                      onSelected: (value) {
+                        setState(() {
+                          _selectedCuisine =
+                          _selectedCuisine ==
+                              value
+                              ? null
+                              : value;
+                        });
+
+                        setModalState(() {});
+                      },
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    _FilterSection(
+                      title: 'Diet Type',
+                      options: _dietTypeOptions,
+                      selectedValue:
+                      _selectedDietType,
+                      onSelected: (value) {
+                        setState(() {
+                          _selectedDietType =
+                          _selectedDietType ==
+                              value
+                              ? null
+                              : value;
+                        });
+
+                        setModalState(() {});
+                      },
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                          AppColors.primary,
+                          padding:
+                          const EdgeInsets.symmetric(
+                            vertical: 16,
+                          ),
+                        ),
+                        child: const Text(
+                          'Apply Filters',
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  int get activeFilterCount {
+    int count = 0;
+
+    if (_selectedCookingTime != null) count++;
+    if (_selectedDishType != null) count++;
+    if (_selectedMealType != null) count++;
+    if (_selectedCuisine != null) count++;
+    if (_selectedDietType != null) count++;
+
+    return count;
   }
 
   @override
@@ -241,46 +479,26 @@ class _SearchPageState extends State<SearchPage> {
                 height: AppSizes.spaceL,
               ),
 
-              _FilterSection(
-                title: 'Cooking Time',
-                options:
-                _cookingTimeOptions,
-                selectedValue:
-                _selectedCookingTime,
-                onSelected:
-                _toggleCookingTime,
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _showFilterBottomSheet,
+                      icon: const Icon(
+                        Icons.tune_rounded,
+                      ),
+                      label: Text(
+                        activeFilterCount == 0
+                            ? 'Filters'
+                            : 'Filters ($activeFilterCount)',
+                      ),
+                    ),
+                  ),
+                ],
               ),
 
               const SizedBox(
                 height: AppSizes.spaceL,
-              ),
-
-              _FilterSection(
-                title: 'Course Type',
-                options:
-                _courseTypeOptions,
-                selectedValue:
-                _selectedCourseType,
-                onSelected:
-                _toggleCourseType,
-              ),
-
-              const SizedBox(
-                height: AppSizes.spaceL,
-              ),
-
-              _FilterSection(
-                title: 'Cuisine',
-                options:
-                _cuisineOptions,
-                selectedValue:
-                _selectedCuisine,
-                onSelected:
-                _toggleCuisine,
-              ),
-
-              const SizedBox(
-                height: AppSizes.spaceXL,
               ),
 
               Container(
@@ -324,7 +542,7 @@ class _SearchPageState extends State<SearchPage> {
                   AppSizes
                       .spaceM,
                   childAspectRatio:
-                  0.68,
+                  0.60,
                 ),
                 itemBuilder:
                     (context, index) {
@@ -487,7 +705,7 @@ class _RecipeSearchCard extends StatelessWidget {
               ),
               child: Image.network(
                 recipe.imageUrl,
-                height: 132,
+                height: 120,
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
