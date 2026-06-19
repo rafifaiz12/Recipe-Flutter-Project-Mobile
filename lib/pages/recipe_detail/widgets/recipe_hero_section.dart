@@ -43,7 +43,7 @@ class RecipeHeroSection
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 420,
+      height: 600,
       width: double.infinity,
       child: Stack(
         children: [

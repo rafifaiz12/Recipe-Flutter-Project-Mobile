@@ -219,7 +219,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
             ),
 
             Transform.translate(
-              offset: const Offset(0, -AppSizes.spaceXL),
+              offset: const Offset(0, 0),
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.fromLTRB(
