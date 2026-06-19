@@ -136,16 +136,12 @@ class RecipeHeroSection
 
                   Text(
                     title,
-                    style:
-                    AppTextStyles
-                        .h1
-                        .copyWith(
-                      color:
-                      Colors.white,
-                      fontSize: 38,
-                      fontWeight:
-                      FontWeight
-                          .w800,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.h1.copyWith(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
 
@@ -170,125 +166,26 @@ class RecipeHeroSection
                   ),
 
                   const SizedBox(
-                    height:
-                    AppSizes.spaceM,
+                    height: AppSizes.spaceM,
                   ),
 
-                  Row(
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 8,
                     children: [
-                      const Icon(
-                        Icons
-                            .schedule_outlined,
-                        color:
-                        Colors.white,
-                        size:
-                        AppSizes
-                            .iconM,
-                      ),
-
-                      const SizedBox(
-                        width:
-                        AppSizes
-                            .spaceXS,
-                      ),
-
-                      Text(
+                      _buildInfoItem(
+                        Icons.schedule_outlined,
                         '$cookTime min',
-                        style:
-                        AppTextStyles
-                            .body
-                            .copyWith(
-                          color:
-                          Colors
-                              .white,
-                        ),
                       ),
 
-                      const SizedBox(
-                        width:
-                        AppSizes
-                            .spaceM,
-                      ),
-
-                      const Icon(
-                        Icons
-                            .bar_chart_rounded,
-                        color:
-                        Colors.white,
-                        size:
-                        AppSizes
-                            .iconM,
-                      ),
-
-                      const SizedBox(
-                        width:
-                        AppSizes
-                            .spaceXS,
-                      ),
-
-                      Text(
+                      _buildInfoItem(
+                        Icons.bar_chart_rounded,
                         difficulty,
-                        style:
-                        AppTextStyles
-                            .body
-                            .copyWith(
-                          color:
-                          Colors
-                              .white,
-                        ),
                       ),
 
-                      const SizedBox(
-                        width:
-                        AppSizes
-                            .spaceM,
-                      ),
-
-                      const Icon(
+                      _buildInfoItem(
                         Icons.star,
-                        color:
-                        Colors.white,
-                        size:
-                        AppSizes
-                            .iconM,
-                      ),
-
-                      const SizedBox(
-                        width:
-                        AppSizes
-                            .spaceXS,
-                      ),
-
-                      Text(
-                        rating,
-                        style:
-                        AppTextStyles
-                            .body
-                            .copyWith(
-                          color:
-                          Colors
-                              .white,
-                        ),
-                      ),
-
-                      const SizedBox(
-                        width:
-                        AppSizes
-                            .spaceXS,
-                      ),
-
-                      Text(
-                        '($totalReviews)',
-                        style:
-                        AppTextStyles
-                            .caption
-                            .copyWith(
-                          color:
-                          Colors.white
-                              .withValues(
-                            alpha: 0.80,
-                          ),
-                        ),
+                        '$rating ($totalReviews)',
                       ),
                     ],
                   ),
@@ -300,6 +197,33 @@ class RecipeHeroSection
       ),
     );
   }
+}
+
+Widget _buildInfoItem(
+    IconData icon,
+    String text,
+    ) {
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(
+        icon,
+        color: Colors.white,
+        size: AppSizes.iconM,
+      ),
+
+      const SizedBox(
+        width: AppSizes.spaceXS,
+      ),
+
+      Text(
+        text,
+        style: AppTextStyles.body.copyWith(
+          color: Colors.white,
+        ),
+      ),
+    ],
+  );
 }
 
 class _CircleIconButton
