@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:io';
 
 import 'package:siresep/app/routes.dart';
 import 'package:siresep/core/constants/app_colors.dart';
@@ -9,6 +10,7 @@ import 'package:siresep/core/widgets/section_title.dart';
 import 'package:siresep/models/recipe_model.dart';
 import 'package:siresep/providers/recipe_provider.dart';
 import 'package:siresep/providers/review_provider.dart';
+import 'package:siresep/providers/profile_provider.dart';
 
 const String _fallbackRecipeImage =
     'https://dummyimage.com/600x400/e5e7eb/6b7280&text=SiResep';
@@ -94,6 +96,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final recipeProvider = context.watch<RecipeProvider>();
+    final profileProvider = context.watch<ProfileProvider>();
+    final user = profileProvider.user;
 
     final trendingRecipes = recipeProvider.trendingRecipes;
     final recommendedRecipes = recipeProvider.recommendedRecipes;
@@ -146,15 +150,30 @@ class _HomePageState extends State<HomePage> {
                               height: 56,
                               width: 56,
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(
-                                  alpha: 0.14,
-                                ),
+                                color: AppColors.primary.withValues(alpha: 0.14),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(
-                                Icons.person,
-                                color: AppColors.primary,
-                                size: 28,
+                              child: ClipOval(
+                                child: user?.photoUrl != null &&
+                                    user!.photoUrl!.trim().isNotEmpty
+                                    ? (user.photoUrl!.startsWith('http')
+                                    ? Image.network(
+                                  user.photoUrl!,
+                                  fit: BoxFit.cover,
+                                  width: 56,
+                                  height: 56,
+                                )
+                                    : Image.file(
+                                  File(user.photoUrl!),
+                                  fit: BoxFit.cover,
+                                  width: 56,
+                                  height: 56,
+                                ))
+                                    : const Icon(
+                                  Icons.person,
+                                  color: AppColors.primary,
+                                  size: 28,
+                                ),
                               ),
                             ),
                           ),
