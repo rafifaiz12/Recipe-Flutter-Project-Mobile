@@ -6,7 +6,6 @@ import 'package:siresep/core/constants/app_text_styles.dart';
 import 'package:provider/provider.dart';
 
 import 'package:siresep/models/recipe_model.dart';
-import 'package:siresep/providers/review_provider.dart';
 
 class AddMealRecipePage
     extends StatefulWidget {
@@ -305,15 +304,9 @@ class _MealRecipeOptionCard
   Widget build(
       BuildContext context,
       ) {
-    final reviewProvider =
-    context.watch<
-        ReviewProvider>();
-
     final rating =
-    reviewProvider
-        .averageRating(
-      recipe.id,
-    );
+        recipe.ratingAverage;
+
     return Material(
       color: AppColors.card,
       borderRadius:

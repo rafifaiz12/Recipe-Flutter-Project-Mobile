@@ -14,6 +14,7 @@ import 'package:siresep/providers/recipe_detail_provider.dart';
 import 'package:siresep/providers/favorite_provider.dart';
 import 'package:siresep/providers/shopping_list_provider.dart';
 import 'package:siresep/providers/review_provider.dart';
+import 'package:siresep/providers/recipe_provider.dart';
 
 import 'package:siresep/pages/review/add_review_page.dart';
 import 'package:siresep/pages/shopping_list/shopping_list_page.dart';
@@ -79,14 +80,14 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
     }
 
     final Map<String, dynamic>? result =
-        await showModalBottomSheet<Map<String, dynamic>>(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) {
-            return AddReviewPage(recipeTitle: recipe.title);
-          },
-        );
+    await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return AddReviewPage(recipeTitle: recipe.title);
+      },
+    );
 
     if (result == null) {
       return;
@@ -107,38 +108,32 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
         comment: comment,
       );
 
-      if (!mounted) return;
+      await Future.wait([
+        context.read<RecipeDetailProvider>().loadRecipe(recipe.id),
+        context.read<ReviewProvider>().loadRecipeReviews(recipe.id),
+        context.read<RecipeProvider>().loadRecipes(),
+      ]);
+
+      if (!mounted) {
+        return;
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Review submitted',
-          ),
+          content: Text('Review submitted'),
         ),
       );
     } catch (e) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Error: $e',
-          ),
+          content: Text('Error: $e'),
         ),
       );
     }
-
-    await reviewProvider.loadRecipeReviews(
-      recipe.id,
-    );
-
-    if (!mounted) {
-      return;
-    }
-
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Review submitted')));
   }
 
   @override
